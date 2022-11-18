@@ -1,12 +1,10 @@
 import mongoose from "mongoose";
-import dotenv from "dotenv";
-
-dotenv.config();
+import { config } from "./config";
 
 export default () => {
   const connect = () => {
     mongoose
-      .connect(process.env.DB_URL as string)
+      .connect(`${config.DB_URL}`)
       .then(() => {
         console.log("Successfully connected to database!");
       })
