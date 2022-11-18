@@ -15,7 +15,9 @@ import cookieSession from "cookie-session";
 import HTTP_STATUS from "http-status-codes";
 import "express-async-errors";
 
-export class Server {
+const SERVER_PORT = 8000;
+
+export class AppServer {
   private app: Application;
 
   constructor(app: Application) {
@@ -61,9 +63,20 @@ export class Server {
 
   private globalErrorHandler(app: Application): void {}
 
-  private startServer(app: Application): void {}
+  private async startServer(app: Application): Promise<void> {
+    try {
+      const httpServer = new http.Server(app);
+      this.startHttpServer(httpServer);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   private createSocketIO(httpServer: http.Server): void {}
 
-  private startHttpServer(httpServer: http.Server): void {}
+  private startHttpServer(httpServer: http.Server): void {
+    httpServer.listen(SERVER_PORT, () => {
+      console.log(`Server is running on PORT ${SERVER_PORT}!`);
+    });
+  }
 }
