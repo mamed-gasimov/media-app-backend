@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { config } from "./config";
 
-export default () => {
+const databaseConnection = () => {
   const connect = () => {
     mongoose
       .connect(`${config.DB_URL}`)
@@ -18,3 +18,5 @@ export default () => {
 
   mongoose.connection.on("disconnected", connect);
 };
+
+export default databaseConnection;
