@@ -1,18 +1,19 @@
-import { Application, json, urlencoded, Request, Response, NextFunction } from 'express';
-import http from 'http';
-import cors from 'cors';
-import helmet from 'helmet';
-import hpp from 'hpp';
+import { createAdapter } from '@socket.io/redis-adapter';
 import compression from 'compression';
 import cookieSession from 'cookie-session';
-import HTTP_STATUS from 'http-status-codes';
-import { Server } from 'socket.io';
-import { createClient } from 'redis';
-import { createAdapter } from '@socket.io/redis-adapter';
+import cors from 'cors';
+import { Application, json, NextFunction, Request, Response, urlencoded } from 'express';
 import 'express-async-errors';
-import { config } from './config';
-import applicationRoutes from './routes';
-import { CustomError, IErrorResponse } from './shared/globals/helpers/errorHandler';
+import helmet from 'helmet';
+import hpp from 'hpp';
+import http from 'http';
+import HTTP_STATUS from 'http-status-codes';
+import { createClient } from 'redis';
+import { Server } from 'socket.io';
+
+import { CustomError, IErrorResponse } from '@global/helpers/errorHandler';
+import { config } from '@root/config';
+import applicationRoutes from '@root/routes';
 
 const SERVER_PORT = 8000;
 const log = config.createLogger('setup server');
