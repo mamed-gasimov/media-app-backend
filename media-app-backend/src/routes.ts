@@ -1,7 +1,9 @@
-import { Application } from "express";
+import { Application } from 'express';
 
 const applicationRoutes = (app: Application) => {
-  const routes = () => {};
+  const routes = () => {
+    return;
+  };
 
   routes();
 };

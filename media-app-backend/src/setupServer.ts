@@ -1,31 +1,21 @@
-import {
-  Application,
-  json,
-  urlencoded,
-  Request,
-  Response,
-  NextFunction,
-} from "express";
-import http from "http";
-import cors from "cors";
-import helmet from "helmet";
-import hpp from "hpp";
-import compression from "compression";
-import cookieSession from "cookie-session";
-import HTTP_STATUS from "http-status-codes";
-import { Server } from "socket.io";
-import { createClient } from "redis";
-import { createAdapter } from "@socket.io/redis-adapter";
-import "express-async-errors";
-import { config } from "./config";
-import applicationRoutes from "./routes";
-import {
-  CustomError,
-  IErrorResponse,
-} from "./shared/globals/helpers/errorHandler";
+import { Application, json, urlencoded, Request, Response, NextFunction } from 'express';
+import http from 'http';
+import cors from 'cors';
+import helmet from 'helmet';
+import hpp from 'hpp';
+import compression from 'compression';
+import cookieSession from 'cookie-session';
+import HTTP_STATUS from 'http-status-codes';
+import { Server } from 'socket.io';
+import { createClient } from 'redis';
+import { createAdapter } from '@socket.io/redis-adapter';
+import 'express-async-errors';
+import { config } from './config';
+import applicationRoutes from './routes';
+import { CustomError, IErrorResponse } from './shared/globals/helpers/errorHandler';
 
 const SERVER_PORT = 8000;
-const log = config.createLogger("setup server");
+const log = config.createLogger('setup server');
 
 export class AppServer {
   private app: Application;
@@ -45,13 +35,10 @@ export class AppServer {
   private securityMiddleware(app: Application): void {
     app.use(
       cookieSession({
-        name: "session",
-        keys: [
-          config.SECRET_KEY_ONE as string,
-          config.SECRET_KEY_TWO as string,
-        ],
+        name: 'session',
+        keys: [config.SECRET_KEY_ONE as string, config.SECRET_KEY_TWO as string],
         maxAge: 24 * 7 * 3600 * 1000,
-        secure: config.NODE_ENV !== "development",
+        secure: config.NODE_ENV !== 'development',
       })
     );
     app.use(hpp());
@@ -61,15 +48,15 @@ export class AppServer {
         origin: config.CLIENT_URL,
         credentials: true,
         optionsSuccessStatus: 200,
-        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       })
     );
   }
 
   private standardMiddleware(app: Application): void {
     app.use(compression());
-    app.use(json({ limit: "50mb" }));
-    app.use(urlencoded({ extended: true, limit: "50mb" }));
+    app.use(json({ limit: '50mb' }));
+    app.use(urlencoded({ extended: true, limit: '50mb' }));
   }
 
   private routeMiddleware(app: Application): void {
@@ -77,26 +64,17 @@ export class AppServer {
   }
 
   private globalErrorHandler(app: Application): void {
-    app.all("*", (req: Request, res: Response) => {
-      res
-        .status(HTTP_STATUS.NOT_FOUND)
-        .json({ message: `${req.originalUrl} is not found!` });
+    app.all('*', (req: Request, res: Response) => {
+      res.status(HTTP_STATUS.NOT_FOUND).json({ message: `${req.originalUrl} is not found!` });
     });
 
-    app.use(
-      (
-        error: IErrorResponse,
-        _req: Request,
-        res: Response,
-        next: NextFunction
-      ) => {
-        log.error(error);
-        if (error instanceof CustomError) {
-          return res.status(error.statusCode).json(error.serializeErrors());
-        }
-        next();
+    app.use((error: IErrorResponse, _req: Request, res: Response, next: NextFunction) => {
+      log.error(error);
+      if (error instanceof CustomError) {
+        return res.status(error.statusCode).json(error.serializeErrors());
       }
-    );
+      next();
+    });
   }
 
   private async startServer(app: Application): Promise<void> {
@@ -114,7 +92,7 @@ export class AppServer {
     const io = new Server(httpServer, {
       cors: {
         origin: config.CLIENT_URL,
-        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       },
     });
 
@@ -133,5 +111,7 @@ export class AppServer {
     });
   }
 
-  private socketIOConnections(io: Server): void {}
+  private socketIOConnections(io: Server): void {
+    return;
+  }
 }
