@@ -25,6 +25,7 @@ import {
 } from "./shared/globals/helpers/errorHandler";
 
 const SERVER_PORT = 8000;
+const log = config.createLogger("setup server");
 
 export class AppServer {
   private app: Application;
@@ -89,7 +90,7 @@ export class AppServer {
         res: Response,
         next: NextFunction
       ) => {
-        console.log(error);
+        log.error(error);
         if (error instanceof CustomError) {
           return res.status(error.statusCode).json(error.serializeErrors());
         }
@@ -105,7 +106,7 @@ export class AppServer {
       this.startHttpServer(httpServer);
       this.socketIOConnections(socketIO);
     } catch (error) {
-      console.log(error);
+      log.error(error);
     }
   }
 
@@ -125,10 +126,10 @@ export class AppServer {
   }
 
   private startHttpServer(httpServer: http.Server): void {
-    console.log(`Server has started with process ${process.pid}.`);
+    log.info(`Server has started with process ${process.pid}.`);
 
     httpServer.listen(SERVER_PORT, () => {
-      console.log(`Server is running on PORT ${SERVER_PORT}!`);
+      log.info(`Server is running on PORT ${SERVER_PORT}!`);
     });
   }
 
