@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { JoiRequestValidationError } from '@global/helpers/errorHandler';
 import { NextFunction, Request, Response } from 'express';
 import { ObjectSchema } from 'joi';
+
+import { JoiRequestValidationError } from '@global/helpers/errorHandler';
 
 type IJoiDecorator = (target: any, key: string, descriptor: PropertyDescriptor) => void;
 
