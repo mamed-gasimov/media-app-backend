@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import HTTP_STATUS from 'http-status-codes';
 import { ObjectId } from 'mongodb';
 
 import { IAuthDocument, ISignUpData, ISignUpRequestBody } from '@auth/interfaces/auth.interface';
@@ -9,7 +10,7 @@ import { BadRequestError } from '@global/helpers/errorHandler';
 import { Helpers } from '@global/helpers/helpers';
 import { authService } from '@service/db/auth.service';
 
-export class SignUp {
+class SignUp {
   @joiValidation(signupSchema)
   public async create(req: Request, res: Response) {
     const { username, email, password, avatarColor, avatarImage } = req.body as ISignUpRequestBody;
@@ -21,7 +22,7 @@ export class SignUp {
     const authObjectId = new ObjectId();
     const userObjectId = new ObjectId();
     const uId = Helpers.generateRandomIntegers(12).toString();
-    const authData = this.signUpData({
+    const authData = SignUp.prototype.signUpData({
       _id: authObjectId,
       username,
       email,
@@ -34,6 +35,11 @@ export class SignUp {
     if (!result?.public_id) {
       throw new BadRequestError('File upload: Error occured! Try again.');
     }
+
+    res.status(HTTP_STATUS.CREATED).json({
+      message: 'User is created successfully!',
+      authData,
+    });
   }
 
   private signUpData(data: ISignUpData): IAuthDocument {
@@ -50,3 +56,5 @@ export class SignUp {
     } as IAuthDocument;
   }
 }
+
+export const signUp = new SignUp();
