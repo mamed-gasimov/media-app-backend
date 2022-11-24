@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import HTTP_STATUS from 'http-status-codes';
+import { omit } from 'lodash';
 import { ObjectId } from 'mongodb';
 
 import { IAuthDocument, ISignUpData, ISignUpRequestBody } from '@auth/interfaces/auth.interface';
@@ -10,6 +11,7 @@ import { BadRequestError } from '@global/helpers/errorHandler';
 import { Helpers } from '@global/helpers/helpers';
 import { config } from '@root/config';
 import { authService } from '@service/db/auth.service';
+import { authQueue } from '@service/queues/auth.queue';
 import { UserCache } from '@service/redis/user.cache';
 import { IUserDocument } from '@user/interfaces/user.interface';
 
@@ -45,6 +47,10 @@ class SignUp {
     const userDataForCache = SignUp.prototype.userData(authData, userObjectId);
     userDataForCache.profilePicture = `https://res.cloudinary.com/${config.CLOUD_NAME}/image/upload/v${result.version}/${userObjectId}`;
     await userCache.saveUserToCache(`${userObjectId}`, uId, userDataForCache);
+
+    // Add to database
+    omit(userDataForCache, ['uId', 'username', 'email', 'avatarColor', 'password']);
+    authQueue.addAuthUserJob('addAuthUserToDB', { value: userDataForCache });
 
     res.status(HTTP_STATUS.CREATED).json({
       message: 'User is created successfully!',
