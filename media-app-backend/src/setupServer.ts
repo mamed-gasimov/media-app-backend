@@ -16,7 +16,7 @@ import { config } from '@root/config';
 import applicationRoutes from '@root/routes';
 
 const SERVER_PORT = 8000;
-const log = config.createLogger('setup server');
+const log = config.createLogger('server');
 
 export class AppServer {
   private app: Application;

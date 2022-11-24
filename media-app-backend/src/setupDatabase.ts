@@ -1,8 +1,9 @@
 import mongoose from 'mongoose';
 
 import { config } from '@root/config';
+import { redisConnection } from '@service/redis/redis.connection';
 
-const log = config.createLogger('setup database');
+const log = config.createLogger('setupDatabase');
 
 const databaseConnection = () => {
   const connect = () => {
@@ -10,6 +11,7 @@ const databaseConnection = () => {
       .connect(`${config.DB_URL}`)
       .then(() => {
         log.info('Successfully connected to database!');
+        redisConnection.connect();
       })
       .catch((error) => {
         log.error('Error connecting to database', error);
