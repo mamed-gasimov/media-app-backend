@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import HTTP_STATUS from 'http-status-codes';
+import JWT from 'jsonwebtoken';
 import { omit } from 'lodash';
 import { ObjectId } from 'mongodb';
 
@@ -12,6 +13,7 @@ import { Helpers } from '@global/helpers/helpers';
 import { config } from '@root/config';
 import { authService } from '@service/db/auth.service';
 import { authQueue } from '@service/queues/auth.queue';
+import { userQueue } from '@service/queues/user.queue';
 import { UserCache } from '@service/redis/user.cache';
 import { IUserDocument } from '@user/interfaces/user.interface';
 
@@ -51,11 +53,29 @@ class SignUp {
     // Add to database
     omit(userDataForCache, ['uId', 'username', 'email', 'avatarColor', 'password']);
     authQueue.addAuthUserJob('addAuthUserToDB', { value: userDataForCache });
+    userQueue.addUserJob('addUserToDB', { value: userDataForCache });
+
+    const userJWT = SignUp.prototype.signToken(authData, userObjectId);
+    req.session = { jwt: userJWT };
 
     res.status(HTTP_STATUS.CREATED).json({
       message: 'User is created successfully!',
-      authData,
+      user: userDataForCache,
+      token: userJWT,
     });
+  }
+
+  private signToken(data: IAuthDocument, userObjectId: ObjectId) {
+    return JWT.sign(
+      {
+        userId: userObjectId,
+        uId: data.uId,
+        email: data.email,
+        username: data.username,
+        avatarColor: data.avatarColor,
+      },
+      config.JWT_TOKEN as string
+    );
   }
 
   private signUpData(data: ISignUpData): IAuthDocument {
