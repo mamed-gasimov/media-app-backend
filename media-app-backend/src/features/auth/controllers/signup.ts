@@ -52,8 +52,8 @@ class SignUp {
 
     // Add to database
     omit(userDataForCache, ['uId', 'username', 'email', 'avatarColor', 'password']);
-    authQueue.addAuthUserJob('addAuthUserToDB', { value: userDataForCache });
-    userQueue.addUserJob('addUserToDB', { value: userDataForCache });
+    authQueue.addAuthUserJob('addAuthUserToDb', { value: userDataForCache });
+    userQueue.addUserJob('addUserToDb', { value: userDataForCache });
 
     const userJWT = SignUp.prototype.signToken(authData, userObjectId);
     req.session = { jwt: userJWT };
