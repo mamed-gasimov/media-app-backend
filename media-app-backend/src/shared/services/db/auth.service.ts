@@ -15,6 +15,13 @@ class AuthService {
     const user: IAuthDocument | null = await AuthModel.findOne(query).exec();
     return user;
   }
+
+  public async getAuthUserByUsername(username: string): Promise<IAuthDocument | null> {
+    const user: IAuthDocument | null = await AuthModel.findOne({
+      username: Helpers.firstLetterUpperCase(username),
+    }).exec();
+    return user;
+  }
 }
 
 export const authService = new AuthService();
