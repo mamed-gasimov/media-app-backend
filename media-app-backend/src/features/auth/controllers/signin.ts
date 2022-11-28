@@ -9,7 +9,7 @@ import { config } from '@root/config';
 import { authService } from '@service/db/auth.service';
 import { userService } from '@service/db/user.service';
 
-export class SignIn {
+class SignIn {
   @joiValidation(loginSchema)
   public async read(req: Request, res: Response) {
     const { username, password } = req.body;
