@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import HTTP_STATUS from 'http-status-codes';
 import JWT from 'jsonwebtoken';
-import { omit } from 'lodash';
 import { ObjectId } from 'mongodb';
 
 import { IAuthDocument, ISignUpData, ISignUpRequestBody } from '@auth/interfaces/auth.interface';
@@ -51,8 +50,7 @@ class SignUp {
     await userCache.saveUserToCache(`${userObjectId}`, uId, userDataForCache);
 
     // Add to database
-    omit(userDataForCache, ['uId', 'username', 'email', 'avatarColor', 'password']);
-    authQueue.addAuthUserJob('addAuthUserToDb', { value: userDataForCache });
+    authQueue.addAuthUserJob('addAuthUserToDb', { value: authData });
     userQueue.addUserJob('addUserToDb', { value: userDataForCache });
 
     const userJWT = SignUp.prototype.signToken(authData, userObjectId);

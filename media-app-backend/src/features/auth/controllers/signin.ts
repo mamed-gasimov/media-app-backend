@@ -7,6 +7,7 @@ import { joiValidation } from '@global/decorators/joiValidation.decorator';
 import { BadRequestError } from '@global/helpers/errorHandler';
 import { config } from '@root/config';
 import { authService } from '@service/db/auth.service';
+import { userService } from '@service/db/user.service';
 
 export class SignIn {
   @joiValidation(loginSchema)
@@ -22,9 +23,11 @@ export class SignIn {
       throw new BadRequestError('Invalid credentials!');
     }
 
+    const user = await userService.getUserByAuthId(`${existingUser._id}`);
+
     const userJWT = JWT.sign(
       {
-        userId: existingUser._id,
+        userId: user._id,
         uId: existingUser.uId,
         email: existingUser.email,
         username: existingUser.username,
@@ -35,9 +38,19 @@ export class SignIn {
 
     req.session = { jwt: userJWT };
 
+    const userDocument = {
+      ...user,
+      authId: existingUser!._id,
+      username: existingUser!.username,
+      email: existingUser!.email,
+      avatarColor: existingUser!.avatarColor,
+      uId: existingUser!.uId,
+      createdAt: existingUser!.createdAt,
+    };
+
     res.status(HTTP_STATUS.OK).json({
       message: 'User logged in successfully!',
-      user: existingUser,
+      user: userDocument,
       token: userJWT,
     });
   }
