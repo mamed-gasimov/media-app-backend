@@ -113,6 +113,7 @@ export class AppServer {
   }
 
   private socketIOConnections(io: Server): void {
+    console.log(io);
     return;
   }
 }
