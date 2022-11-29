@@ -1,8 +1,19 @@
 import { Application } from 'express';
 
+import { authRoutes } from '@auth/routes/authRoutes';
+import { currentUserRoutes } from '@auth/routes/currentUserRoutes';
+import { authMiddleware } from '@global/helpers/authMiddleware';
+import { serverAdapter } from '@service/queues/base.queue';
+
+const BASE_PATH = '/api/v1';
+
 const applicationRoutes = (app: Application) => {
   const routes = () => {
-    return;
+    app.use('/queues', serverAdapter.getRouter());
+    app.use(BASE_PATH, authRoutes.routes());
+    app.use(BASE_PATH, authRoutes.signOutRoute());
+
+    app.use(BASE_PATH, authMiddleware.verifyUser, currentUserRoutes.routes());
   };
 
   routes();

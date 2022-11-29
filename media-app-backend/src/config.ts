@@ -18,7 +18,7 @@ class Config {
 
   constructor() {
     this.DB_URL = process.env.DB_URL || '';
-    this.JWT_TOKEN = process.env.JWT_TOKEN;
+    this.JWT_TOKEN = process.env.JWT_TOKEN || '';
     this.NODE_ENV = process.env.NODE_ENV || '';
     this.SECRET_KEY_ONE = process.env.SECRET_KEY_ONE || '';
     this.SECRET_KEY_TWO = process.env.SECRET_KEY_TWO || '';
