@@ -7,6 +7,10 @@ class AuthService {
     await AuthModel.create(data);
   }
 
+  public async updatePasswordToken(authId: string, token: string, tokenExpiration: number) {
+    await AuthModel.updateOne({ _id: authId }, { passwordResetToken: token, passwordResetExpires: tokenExpiration });
+  }
+
   public async getUserByUsernameOrEmail(username: string, email: string): Promise<IAuthDocument | null> {
     const query = {
       $or: [{ username: Helpers.firstLetterUpperCase(username) }, { email: Helpers.lowerCase(email) }],
@@ -19,6 +23,13 @@ class AuthService {
   public async getAuthUserByUsername(username: string): Promise<IAuthDocument | null> {
     const user: IAuthDocument | null = await AuthModel.findOne({
       username: Helpers.firstLetterUpperCase(username),
+    }).exec();
+    return user;
+  }
+
+  public async getAuthUserByEmail(email: string): Promise<IAuthDocument | null> {
+    const user: IAuthDocument | null = await AuthModel.findOne({
+      email: Helpers.lowerCase(email),
     }).exec();
     return user;
   }

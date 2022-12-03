@@ -1,5 +1,7 @@
+import crypto from 'crypto';
+
 export class Helpers {
-  static firstLetterUpperCase(str: string): string {
+  static firstLetterUpperCase(str: string) {
     const valueString = str.toLowerCase();
     return valueString
       .split(' ')
@@ -7,11 +9,11 @@ export class Helpers {
       .join(' ');
   }
 
-  static lowerCase(str: string): string {
+  static lowerCase(str: string) {
     return str.toLowerCase();
   }
 
-  static generateRandomIntegers(integerLength: number): number {
+  static generateRandomIntegers(integerLength: number) {
     const characters = '0123456789';
     let result = '';
     const charactersLength = characters.length;
@@ -19,6 +21,11 @@ export class Helpers {
       result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return parseInt(result, 10);
+  }
+
+  static generateRandomCharacters(bytes: number) {
+    const randomBytes = crypto.randomBytes(bytes);
+    return randomBytes.toString('hex');
   }
 
   static parseJson(prop: string) {

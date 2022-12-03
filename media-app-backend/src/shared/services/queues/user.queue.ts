@@ -1,12 +1,12 @@
 import { ProcessPromiseFunction } from 'bull';
 
 import { userWorker } from '@root/shared/workers/user.worker';
-import { BaseQueue } from '@service/queues/base.queue';
+import { BaseQueue, IBaseJobData } from '@service/queues/base.queue';
 
 class UserQueue extends BaseQueue {
   constructor() {
     super('user');
-    this.processJob('addUserToDb', 5, userWorker.addUserToDb as ProcessPromiseFunction<void>);
+    this.processJob('addUserToDb', 5, userWorker.addUserToDb as ProcessPromiseFunction<IBaseJobData>);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
