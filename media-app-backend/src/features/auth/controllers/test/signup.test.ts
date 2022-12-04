@@ -1,0 +1,128 @@
+import { Request, Response } from 'express';
+
+import { signUp } from '@auth/controllers/signup';
+import { ISignUpRequestBody } from '@auth/interfaces/auth.interface';
+import { CustomError } from '@global/helpers/errorHandler';
+import { authMockRequest, authMockResponse } from '@root/mocks/auth.mock';
+
+jest.mock('@service/queues/base.queue');
+jest.mock('@service/redis/user.cache');
+jest.mock('@service/queues/user.queue');
+jest.mock('@service/queues/auth.queue');
+jest.mock('@global/helpers/cloudinaryUpload');
+
+const getTestData = (body: ISignUpRequestBody, outputMessage: string) => {
+  const req = authMockRequest({}, body) as Request;
+  const res: Response = authMockResponse();
+
+  signUp.create(req, res).catch((error: CustomError) => {
+    expect(error.statusCode).toEqual(400);
+    expect(error.serializeErrors().message).toEqual(outputMessage);
+  });
+};
+
+describe('SignUp', () => {
+  it('should throw an error if username is not available', () => {
+    getTestData(
+      {
+        username: '',
+        email: 'manny@test.com',
+        password: 'qwerty123',
+        avatarColor: 'red',
+        avatarImage: 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ==',
+      },
+      'Username is a required field'
+    );
+  });
+
+  it('should throw an error if username length is less than minimum length', () => {
+    getTestData(
+      {
+        username: 'te',
+        email: 'manny@test.com',
+        password: 'qwerty123',
+        avatarColor: 'red',
+        avatarImage: 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ==',
+      },
+      'Invalid username'
+    );
+  });
+
+  it('should throw an error if username length is greater than maximum length', () => {
+    getTestData(
+      {
+        username: 'some very long username',
+        email: 'manny@test.com',
+        password: 'qwerty123',
+        avatarColor: 'red',
+        avatarImage: 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ==',
+      },
+      'Invalid username'
+    );
+  });
+
+  it('should throw an error if email is not valid', () => {
+    getTestData(
+      {
+        username: 'test',
+        email: 'invalid email',
+        password: 'qwerty123',
+        avatarColor: 'red',
+        avatarImage: 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ==',
+      },
+      'Email must be valid'
+    );
+  });
+
+  it('should throw an error if email is not available', () => {
+    getTestData(
+      {
+        username: 'test',
+        email: '',
+        password: 'qwerty123',
+        avatarColor: 'red',
+        avatarImage: 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ==',
+      },
+      'Email is a required field'
+    );
+  });
+
+  it('should throw an error if password is not available', () => {
+    getTestData(
+      {
+        username: 'test',
+        email: 'test@gmail.com',
+        password: '',
+        avatarColor: 'red',
+        avatarImage: 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ==',
+      },
+      'Password is a required field'
+    );
+  });
+
+  it('should throw an error if password length is less than minimum length', () => {
+    getTestData(
+      {
+        username: 'test',
+        email: 'test@gmail.com',
+        password: 'te',
+        avatarColor: 'red',
+        avatarImage: 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ==',
+      },
+      'Invalid password'
+    );
+  });
+
+  it('should throw an error if password length is greater than maximum length', () => {
+    getTestData(
+      {
+        username: 'test',
+        email: 'test@gmail.com',
+        password: 'some really long password',
+        avatarColor: 'red',
+        avatarImage: 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ==',
+      },
+      'Invalid password'
+    );
+  });
+});
