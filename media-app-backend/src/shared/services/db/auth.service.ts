@@ -33,6 +33,14 @@ class AuthService {
     }).exec();
     return user;
   }
+
+  public async getAuthUserByPasswordToken(token: string): Promise<IAuthDocument | null> {
+    const user: IAuthDocument | null = await AuthModel.findOne({
+      passwordResetToken: token,
+      passwordResetExpires: { $gt: Date.now() },
+    }).exec();
+    return user;
+  }
 }
 
 export const authService = new AuthService();
