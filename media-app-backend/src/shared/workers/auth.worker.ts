@@ -1,16 +1,16 @@
 import { DoneCallback, Job } from 'bull';
 
-import { IAuthDocument } from '@auth/interfaces/auth.interface';
+import { IAuthDocument, IAuthJob } from '@auth/interfaces/auth.interface';
 import { config } from '@root/config';
 import { authService } from '@service/db/auth.service';
 
 const log = config.createLogger('authWorker');
 
 class AuthWorker {
-  async addAuthUserToDb(job: Job, done: DoneCallback) {
+  async addAuthUserToDb(job: Job<IAuthJob>, done: DoneCallback) {
     try {
-      const value = job.data.value as IAuthDocument;
-      await authService.createAuthUser(value);
+      const { value } = job.data;
+      await authService.createAuthUser(value as IAuthDocument);
       job.progress(100);
       done(null, job.data);
     } catch (error) {

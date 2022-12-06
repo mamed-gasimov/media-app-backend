@@ -15,7 +15,7 @@ class SignIn {
     const { username, password } = req.body;
     const existingUser = await authService.getAuthUserByUsername(username);
     if (!existingUser) {
-      throw new BadRequestError('User is not found!');
+      throw new BadRequestError('Invalid credentials!');
     }
 
     const passwordMatch = await existingUser.comparePassword(password);

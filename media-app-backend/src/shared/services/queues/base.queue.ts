@@ -6,12 +6,13 @@ import Logger from 'bunyan';
 
 import { IAuthJob } from '@auth/interfaces/auth.interface';
 import { config } from '@root/config';
+import { IEmailJob } from '@user/interfaces/user.interface';
 
 let bullAdapters: BullAdapter[] = [];
 
 export let serverAdapter: ExpressAdapter;
 
-type IBaseJobData = IAuthJob;
+export type IBaseJobData = IAuthJob | IEmailJob;
 
 export abstract class BaseQueue {
   queue: Queue.Queue;
@@ -48,7 +49,7 @@ export abstract class BaseQueue {
     this.queue.add(name, data, { attempts: 3, backoff: { type: 'fixed', delay: 5000 } });
   }
 
-  protected processJob(name: string, concurrency: number, callback: Queue.ProcessPromiseFunction<void>) {
+  protected processJob(name: string, concurrency: number, callback: Queue.ProcessPromiseFunction<IBaseJobData>) {
     this.queue.process(name, concurrency, callback);
   }
 }

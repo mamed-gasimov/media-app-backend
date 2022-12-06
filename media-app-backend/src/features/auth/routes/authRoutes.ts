@@ -1,5 +1,6 @@
 import { Router } from 'express';
 
+import { passwordReset } from '@auth/controllers/passwordReset';
 import { signIn } from '@auth/controllers/signin';
 import { signOut } from '@auth/controllers/signout';
 import { signUp } from '@auth/controllers/signup';
@@ -14,6 +15,8 @@ class AuthRoutes {
   public routes(): Router {
     this.router.post('/signup', signUp.create);
     this.router.post('/signin', signIn.read);
+    this.router.post('/forgot-password', passwordReset.create);
+    this.router.post('/reset-password/:token', passwordReset.update);
 
     return this.router;
   }
