@@ -182,7 +182,7 @@ describe('SignUp', () => {
 
     await signUp.create(req, res);
     expect(req.session?.jwt).toBeDefined();
-    expect(res.json).toBeCalledWith({
+    expect(res.json).toHaveBeenCalledWith({
       message: 'User is created successfully!',
       user: userSpy.mock.calls[0][2],
       token: req.session?.jwt,

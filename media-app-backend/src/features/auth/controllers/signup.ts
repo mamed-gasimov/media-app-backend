@@ -91,14 +91,13 @@ class SignUp {
   }
 
   private userData(data: IAuthDocument, userObjectId: ObjectId): IUserDocument {
-    const { _id, username, email, uId, password, avatarColor } = data;
+    const { _id, username, email, uId, avatarColor } = data;
     return {
       _id: userObjectId,
       authId: _id,
       uId,
       username: Helpers.firstLetterUpperCase(username),
       email,
-      password,
       avatarColor,
       profilePicture: '',
       blocked: [],
