@@ -1,10 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response } from 'express';
 
 import { signUp } from '@auth/controllers/signup';
 import { ISignUpRequestBody } from '@auth/interfaces/auth.interface';
+import * as cloudinaryUploads from '@global/helpers/cloudinaryUpload';
 import { CustomError } from '@global/helpers/errorHandler';
-import { authMockRequest, authMockResponse } from '@root/mocks/auth.mock';
+import { authMock, authMockRequest, authMockResponse } from '@root/mocks/auth.mock';
+import { authService } from '@service/db/auth.service';
+import { UserCache } from '@service/redis/user.cache';
 
+jest.useFakeTimers();
 jest.mock('@service/queues/base.queue');
 jest.mock('@service/redis/user.cache');
 jest.mock('@service/queues/user.queue');
@@ -22,6 +27,15 @@ const getTestData = (body: ISignUpRequestBody, outputMessage: string) => {
 };
 
 describe('SignUp', () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+    jest.clearAllTimers();
+  });
+
   it('should throw an error if username is not available', () => {
     getTestData(
       {
@@ -124,5 +138,54 @@ describe('SignUp', () => {
       },
       'Invalid password'
     );
+  });
+
+  it('should throw unauthorize error if user already exists', () => {
+    const req = authMockRequest(
+      {},
+      {
+        username: 'test',
+        email: 'manny@me.com',
+        password: 'qwerty123',
+        avatarColor: 'red',
+        avatarImage: 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ==',
+      }
+    ) as Request;
+    const res: Response = authMockResponse();
+
+    jest.spyOn(authService, 'getUserByUsernameOrEmail').mockResolvedValue(authMock);
+
+    signUp.create(req, res).catch((error: CustomError) => {
+      expect(error.statusCode).toEqual(400);
+      expect(error.serializeErrors().message).toEqual('User is already exists!');
+    });
+  });
+
+  it('should set session data for valid credentials and send correct json response', async () => {
+    const req = authMockRequest(
+      {},
+      {
+        username: 'test',
+        email: 'manny@me.com',
+        password: 'qwerty123',
+        avatarColor: 'red',
+        avatarImage: 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ==',
+      }
+    ) as Request;
+    const res: Response = authMockResponse();
+
+    jest.spyOn(authService, 'getUserByUsernameOrEmail').mockResolvedValue(null);
+    const userSpy = jest.spyOn(UserCache.prototype, 'saveUserToCache');
+    jest
+      .spyOn(cloudinaryUploads, 'uploads')
+      .mockImplementation((): any => Promise.resolve({ version: '1234737373', public_id: '123456' }));
+
+    await signUp.create(req, res);
+    expect(req.session?.jwt).toBeDefined();
+    expect(res.json).toBeCalledWith({
+      message: 'User is created successfully!',
+      user: userSpy.mock.calls[0][2],
+      token: req.session?.jwt,
+    });
   });
 });
