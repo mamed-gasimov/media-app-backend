@@ -19,7 +19,7 @@ class PasswordReset {
     const { email } = req.body;
     const existingUser = await authService.getAuthUserByEmail(email);
     if (!existingUser) {
-      throw new BadRequestError('User is not found!');
+      throw new BadRequestError('Invalid credentials');
     }
 
     const randomCharacters = Helpers.generateRandomCharacters(20);
@@ -42,7 +42,7 @@ class PasswordReset {
 
     const existingUser = await authService.getAuthUserByPasswordToken(token);
     if (!existingUser) {
-      throw new BadRequestError('Reset token has expired!');
+      throw new BadRequestError('Reset token has expired.');
     }
 
     existingUser.password = password;
