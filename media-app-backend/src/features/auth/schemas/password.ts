@@ -1,6 +1,6 @@
-import Joi, { ObjectSchema } from 'joi';
+import Joi from 'joi';
 
-const emailSchema: ObjectSchema = Joi.object().keys({
+const emailSchema = Joi.object().keys({
   email: Joi.string().email().required().messages({
     'string.base': 'Field must be valid',
     'string.required': 'Field must be valid',
@@ -8,7 +8,7 @@ const emailSchema: ObjectSchema = Joi.object().keys({
   }),
 });
 
-const passwordSchema: ObjectSchema = Joi.object().keys({
+const passwordSchema = Joi.object().keys({
   password: Joi.string().required().min(8).max(20).messages({
     'string.base': 'Password should be of type string',
     'string.min': 'Invalid password',

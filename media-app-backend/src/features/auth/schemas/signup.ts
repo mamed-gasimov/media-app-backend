@@ -1,6 +1,6 @@
-import Joi, { ObjectSchema } from 'joi';
+import Joi from 'joi';
 
-const signupSchema: ObjectSchema = Joi.object().keys({
+const signupSchema = Joi.object().keys({
   username: Joi.string().required().min(4).max(20).messages({
     'string.base': 'Username must be of type string',
     'string.min': 'Invalid username',
