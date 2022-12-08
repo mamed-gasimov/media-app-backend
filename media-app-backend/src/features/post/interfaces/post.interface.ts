@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 import { Document } from 'mongoose';
 
-// import { IReactions } from '@root/features/reactions/interfaces/reaction.interface';
+import { IReactions } from '@reaction/interfaces/reaction.interface';
 
 export interface IPostDocument extends Document {
   _id?: string | ObjectId;
@@ -18,7 +18,9 @@ export interface IPostDocument extends Document {
   feelings?: string;
   gifUrl?: string;
   privacy?: string;
-  // reactions?: IReactions;
+  videoId?: string;
+  videoVersion?: string;
+  reactions?: IReactions;
   createdAt?: Date;
 }
 
