@@ -1,8 +1,11 @@
+import { UploadApiErrorResponse, UploadApiResponse } from 'cloudinary';
 import { Request, Response } from 'express';
 import HTTP_STATUS from 'http-status-codes';
 import { ObjectId } from 'mongodb';
 
 import { joiValidation } from '@global/decorators/joiValidation.decorator';
+import { uploads } from '@global/helpers/cloudinaryUpload';
+import { BadRequestError } from '@global/helpers/errorHandler';
 import { IPostDocument } from '@post/interfaces/post.interface';
 import { postSchema } from '@post/schemas/post';
 import { postQueue } from '@service/queues/post.queue';
@@ -14,7 +17,16 @@ const postCache = new PostCache();
 class CreatePost {
   @joiValidation(postSchema)
   public async post(req: Request, res: Response) {
-    const { post, bgColor, privacy, gifUrl, profilePicture, feelings } = req.body;
+    const { post, bgColor, privacy, gifUrl, profilePicture, feelings, image } = req.body;
+
+    let result: UploadApiResponse | UploadApiErrorResponse | undefined;
+    if (image) {
+      result = await uploads(image);
+      if (!result?.public_id) {
+        throw new BadRequestError(result?.message);
+      }
+    }
+
     const postObjectId = new ObjectId();
     const createdPost = {
       _id: postObjectId,
@@ -29,8 +41,8 @@ class CreatePost {
       profilePicture,
       feelings,
       commentsCount: 0,
-      imgVersion: '',
-      imgId: '',
+      imgVersion: `${result?.version || ''}`,
+      imgId: `${result?.public_id || ''}`,
       videoId: '',
       videoVersion: '',
       createdAt: new Date(),
@@ -47,6 +59,8 @@ class CreatePost {
     });
 
     postQueue.addPostJob('addPostToDb', { key: req.currentUser!.userId, value: createdPost });
+
+    //call image queue to add image to mongodb database
 
     res.status(HTTP_STATUS.CREATED).json({ message: 'Post created successfully' });
   }

@@ -16,5 +16,6 @@ withCredentials: true
   "privacy": "Public",
   "gifUrl": "",
   "profilePicture": "<cloudinary-user-profile-picture-url>",
-  "feelings": ""
+  "feelings": "",
+  "image": ""
 }
