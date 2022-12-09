@@ -5,7 +5,9 @@ import { ObjectId } from 'mongodb';
 import { joiValidation } from '@global/decorators/joiValidation.decorator';
 import { IPostDocument } from '@post/interfaces/post.interface';
 import { postSchema } from '@post/schemas/post';
+import { postQueue } from '@service/queues/post.queue';
 import { PostCache } from '@service/redis/post.cache';
+import { socketIOPostObject } from '@socket/post.sockets';
 
 const postCache = new PostCache();
 
@@ -35,12 +37,16 @@ class CreatePost {
       reactions: { like: 0, love: 0, happy: 0, sad: 0, wow: 0, angry: 0 },
     } as IPostDocument;
 
+    socketIOPostObject.emit('add post', createdPost);
+
     await postCache.savePostToCache({
       key: postObjectId,
       currentUserId: `${req.currentUser?.userId}`,
       uId: `${req.currentUser?.uId}`,
       createdPost,
     });
+
+    postQueue.addPostJob('addPostToDb', { key: req.currentUser!.userId, value: createdPost });
 
     res.status(HTTP_STATUS.CREATED).json({ message: 'Post created successfully' });
   }
