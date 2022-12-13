@@ -25,3 +25,9 @@ withCredentials: true
   "feelings": "",
   "image": ""
 }
+
+###
+DELETE {{baseUrl}}/{{urlPath}}/posts/<postId>
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
