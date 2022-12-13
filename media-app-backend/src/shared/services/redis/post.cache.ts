@@ -233,6 +233,8 @@ export class PostCache extends BaseCache {
         `${videoId}`,
         'videoVersion',
         `${videoVersion}`,
+        'updatedAt',
+        `${new Date()}`,
       ];
 
       await this.client.HSET(`posts:${key}`, dataToSave);
@@ -243,6 +245,7 @@ export class PostCache extends BaseCache {
       postReply[0].commentsCount = Helpers.parseJson(`${postReply[0].commentsCount}`) as number;
       postReply[0].reactions = Helpers.parseJson(`${postReply[0].reactions}`) as IReactions;
       postReply[0].createdAt = new Date(Helpers.parseJson(`${postReply[0].createdAt}`)) as Date;
+      postReply[0].updatedAt = new Date(Helpers.parseJson(`${postReply[0].updatedAt}`)) as Date;
 
       return postReply[0];
     } catch (error) {

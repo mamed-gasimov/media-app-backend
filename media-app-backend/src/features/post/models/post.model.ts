@@ -25,6 +25,7 @@ const postSchema = new Schema({
     angry: { type: Number, default: 0 },
   },
   createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date || null, default: null },
 });
 
 export const PostModel = model<IPostDocument>('Post', postSchema, 'Post');

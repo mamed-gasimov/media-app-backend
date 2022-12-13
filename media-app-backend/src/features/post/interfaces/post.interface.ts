@@ -22,6 +22,7 @@ export interface IPostDocument extends Document {
   videoVersion?: string;
   reactions?: IReactions;
   createdAt?: Date;
+  updatedAt?: Date | null;
 }
 
 export interface IGetPostsQuery {

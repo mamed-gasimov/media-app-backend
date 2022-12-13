@@ -31,3 +31,18 @@ DELETE {{baseUrl}}/{{urlPath}}/posts/<postId>
 Content-Type: application/json
 Accept: application/json
 withCredentials: true
+
+###
+PUT {{baseUrl}}/{{urlPath}}/posts/<postId>
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+{
+  "post": "",
+  "bgColor": "<any-hex-color-code>",
+  "privacy": "Public",
+  "gifUrl": "",
+  "profilePicture": "<cloudinary-user-profile-picture-url>",
+  "feelings": ""
+}

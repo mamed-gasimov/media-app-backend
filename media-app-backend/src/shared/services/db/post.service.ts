@@ -28,6 +28,10 @@ class PostService {
     const decrementPostCount = UserModel.updateOne({ _id: userId }, { $inc: { postsCount: -1 } });
     await Promise.all([deletePost, decrementPostCount]);
   }
+
+  public async updatePost(postId: string, updatedPost: IPostDocument) {
+    await PostModel.updateOne({ _id: postId }, { $set: updatedPost });
+  }
 }
 
 export const postService = new PostService();
