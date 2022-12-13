@@ -1,8 +1,10 @@
+import { UploadApiErrorResponse, UploadApiResponse } from 'cloudinary';
 import { Request, Response } from 'express';
 import HTTP_STATUS from 'http-status-codes';
 import { ObjectId } from 'mongodb';
 
 import { joiValidation } from '@global/decorators/joiValidation.decorator';
+import { uploads } from '@global/helpers/cloudinaryUpload';
 import { BadRequestError } from '@global/helpers/errorHandler';
 import { IPostDocument } from '@post/interfaces/post.interface';
 import { postSchema } from '@post/schemas/post';
@@ -25,13 +27,33 @@ class UpdatePost {
       throw new BadRequestError('Invalid request.');
     }
 
-    const { post, bgColor, imgId, imgVersion, videoId, videoVersion, feelings, gifUrl, privacy, profilePicture } =
-      req.body;
-    const updatedPostData = {
+    const {
       post,
       bgColor,
       imgId,
       imgVersion,
+      videoId,
+      videoVersion,
+      feelings,
+      gifUrl,
+      privacy,
+      profilePicture,
+      image,
+    } = req.body;
+
+    let result: UploadApiResponse | UploadApiErrorResponse | undefined;
+    if (image) {
+      result = await uploads(image);
+      if (!result?.public_id) {
+        throw new BadRequestError(result?.message);
+      }
+    }
+
+    const updatedPostData = {
+      post,
+      bgColor,
+      imgVersion: `${result?.version || imgVersion}`,
+      imgId: `${result?.public_id || imgId}`,
       videoId,
       videoVersion,
       feelings,
