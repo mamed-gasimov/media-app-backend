@@ -1,15 +1,16 @@
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 
 import { AuthPayload } from '@auth/interfaces/auth.interface';
 import { IPostDocument } from '@post/interfaces/post.interface';
 import { existingUser } from '@root/mocks/user.mock';
 
-export const postMockRequest = (body: IBody, currentUser?: AuthPayload | null, params?: IParams) => ({
-  body,
-  params,
-  currentUser,
-});
+export const postMockRequest = (body: IBody, currentUser?: AuthPayload | null, params?: IParams) =>
+  ({
+    body,
+    params,
+    currentUser,
+  } as Request);
 
 export const postMockResponse = (): Response => {
   const res: Response = {} as Response;

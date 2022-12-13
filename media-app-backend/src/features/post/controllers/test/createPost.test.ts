@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Request, Response } from 'express';
 import { Server } from 'socket.io';
 
 import * as cloudinaryUploads from '@global/helpers/cloudinaryUpload';
@@ -35,8 +34,8 @@ describe('Create', () => {
 
   describe('post without image', () => {
     it('should send correct json response', async () => {
-      const req: Request = postMockRequest(newPost, authUserPayload) as Request;
-      const res: Response = postMockResponse();
+      const req = postMockRequest(newPost, authUserPayload);
+      const res = postMockResponse();
       jest.spyOn(postServer.socketIOPostObject, 'emit');
       const spy = jest.spyOn(PostCache.prototype, 'savePostToCache');
       jest.spyOn(postQueue, 'addPostJob');
@@ -64,8 +63,8 @@ describe('Create', () => {
   describe('post with image', () => {
     it('should throw an upload error', () => {
       newPost.image = 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ==';
-      const req: Request = postMockRequest(newPost, authUserPayload) as Request;
-      const res: Response = postMockResponse();
+      const req = postMockRequest(newPost, authUserPayload);
+      const res = postMockResponse();
       jest
         .spyOn(cloudinaryUploads, 'uploads')
         .mockImplementation((): any => Promise.resolve({ version: '', public_id: '', message: 'Upload error' }));
@@ -78,8 +77,8 @@ describe('Create', () => {
 
     it('should send correct json response', async () => {
       newPost.image = 'testing image';
-      const req: Request = postMockRequest(newPost, authUserPayload) as Request;
-      const res: Response = postMockResponse();
+      const req = postMockRequest(newPost, authUserPayload);
+      const res = postMockResponse();
       jest.spyOn(postServer.socketIOPostObject, 'emit');
       const spy = jest.spyOn(PostCache.prototype, 'savePostToCache');
       jest.spyOn(postQueue, 'addPostJob');

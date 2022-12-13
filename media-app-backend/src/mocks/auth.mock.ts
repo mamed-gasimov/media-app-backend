@@ -1,20 +1,16 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Response } from 'express';
+import { Request, Response } from 'express';
 
 import { AuthPayload, IAuthDocument } from '@auth/interfaces/auth.interface';
 
-export const authMockRequest = (
-  sessionData: IJWT,
-  body: IAuthMock,
-  currentUser?: AuthPayload | null,
-  params?: any
-) => ({
-  session: sessionData,
-  body,
-  params,
-  currentUser,
-});
+export const authMockRequest = (sessionData: IJWT, body: IAuthMock, currentUser?: AuthPayload | null, params?: any) =>
+  ({
+    session: sessionData,
+    body,
+    params,
+    currentUser,
+  } as Request);
 
 export const authMockResponse = (): Response => {
   const res = {} as Response;

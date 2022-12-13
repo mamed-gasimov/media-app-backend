@@ -1,5 +1,3 @@
-import { Request, Response } from 'express';
-
 import { passwordReset } from '@auth/controllers/passwordReset';
 import { CustomError } from '@global/helpers/errorHandler';
 import { authMock, authMockRequest, authMockResponse } from '@root/mocks/auth.mock';
@@ -21,8 +19,8 @@ const getTestData = (
   outputMessage: string,
   method: 'create' | 'update'
 ) => {
-  const req = authMockRequest({}, body) as Request;
-  const res: Response = authMockResponse();
+  const req = authMockRequest({}, body);
+  const res = authMockResponse();
 
   passwordReset[method](req, res).catch((error: CustomError) => {
     expect(error.statusCode).toEqual(400);
@@ -49,8 +47,8 @@ describe('Password', () => {
     });
 
     it('should send correct json response', async () => {
-      const req: Request = authMockRequest({}, { email: CORRECT_EMAIL }) as Request;
-      const res: Response = authMockResponse();
+      const req = authMockRequest({}, { email: CORRECT_EMAIL });
+      const res = authMockResponse();
       jest.spyOn(authService, 'getAuthUserByEmail').mockResolvedValue(authMock);
       jest.spyOn(emailQueue, 'addEmailJob');
       await passwordReset.create(req, res);
@@ -76,13 +74,10 @@ describe('Password', () => {
     });
 
     it('should throw error if reset token is empty', () => {
-      const req: Request = authMockRequest(
-        {},
-        { password: CORRECT_PASSWORD, confirmPassword: CORRECT_PASSWORD },
-        null,
-        { token: '' }
-      ) as Request;
-      const res: Response = authMockResponse();
+      const req = authMockRequest({}, { password: CORRECT_PASSWORD, confirmPassword: CORRECT_PASSWORD }, null, {
+        token: '',
+      });
+      const res = authMockResponse();
       passwordReset.update(req, res).catch((error: CustomError) => {
         expect(error.statusCode).toEqual(400);
         expect(error.serializeErrors().message).toEqual('Reset token is required!');
@@ -90,13 +85,10 @@ describe('Password', () => {
     });
 
     it('should throw error if reset token has expired', () => {
-      const req: Request = authMockRequest(
-        {},
-        { password: CORRECT_PASSWORD, confirmPassword: CORRECT_PASSWORD },
-        null,
-        { token: '12sde3t8g8j' }
-      ) as Request;
-      const res: Response = authMockResponse();
+      const req = authMockRequest({}, { password: CORRECT_PASSWORD, confirmPassword: CORRECT_PASSWORD }, null, {
+        token: '12sde3t8g8j',
+      });
+      const res = authMockResponse();
       jest.spyOn(authService, 'getAuthUserByPasswordToken').mockResolvedValue(null);
       passwordReset.update(req, res).catch((error: CustomError) => {
         expect(error.statusCode).toEqual(400);
@@ -105,13 +97,10 @@ describe('Password', () => {
     });
 
     it('should send correct json response', async () => {
-      const req: Request = authMockRequest(
-        {},
-        { password: CORRECT_PASSWORD, confirmPassword: CORRECT_PASSWORD },
-        null,
-        { token: '12sde3' }
-      ) as Request;
-      const res: Response = authMockResponse();
+      const req = authMockRequest({}, { password: CORRECT_PASSWORD, confirmPassword: CORRECT_PASSWORD }, null, {
+        token: '12sde3',
+      });
+      const res = authMockResponse();
       jest.spyOn(authService, 'getAuthUserByPasswordToken').mockResolvedValue(authMock);
       jest.spyOn(emailQueue, 'addEmailJob');
       await passwordReset.update(req, res);

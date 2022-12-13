@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Request, Response } from 'express';
-
 import { signUp } from '@auth/controllers/signup';
 import { ISignUpRequestBody } from '@auth/interfaces/auth.interface';
 import * as cloudinaryUploads from '@global/helpers/cloudinaryUpload';
@@ -17,8 +15,8 @@ jest.mock('@service/queues/auth.queue');
 jest.mock('@global/helpers/cloudinaryUpload');
 
 const getTestData = (body: ISignUpRequestBody, outputMessage: string) => {
-  const req = authMockRequest({}, body) as Request;
-  const res: Response = authMockResponse();
+  const req = authMockRequest({}, body);
+  const res = authMockResponse();
 
   signUp.create(req, res).catch((error: CustomError) => {
     expect(error.statusCode).toEqual(400);
@@ -150,8 +148,8 @@ describe('SignUp', () => {
         avatarColor: 'red',
         avatarImage: 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ==',
       }
-    ) as Request;
-    const res: Response = authMockResponse();
+    );
+    const res = authMockResponse();
 
     jest.spyOn(authService, 'getUserByUsernameOrEmail').mockResolvedValue(authMock);
 
@@ -171,8 +169,8 @@ describe('SignUp', () => {
         avatarColor: 'red',
         avatarImage: 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ==',
       }
-    ) as Request;
-    const res: Response = authMockResponse();
+    );
+    const res = authMockResponse();
 
     jest.spyOn(authService, 'getUserByUsernameOrEmail').mockResolvedValue(null);
     const userSpy = jest.spyOn(UserCache.prototype, 'saveUserToCache');
