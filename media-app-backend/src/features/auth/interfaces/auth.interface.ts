@@ -1,6 +1,7 @@
-import { IUserDocument } from '@user/interfaces/user.interface';
 import { ObjectId } from 'mongodb';
 import { Document } from 'mongoose';
+
+import { IUserDocument } from '@user/interfaces/user.interface';
 
 declare global {
   namespace Express {

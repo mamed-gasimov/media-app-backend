@@ -51,7 +51,7 @@ export class UserCache extends BaseCache {
       'createdAt',
       `${createdAt}`,
       'postsCount',
-      `${postsCount}`,
+      `${postsCount || 0}`,
     ];
 
     const secondList = [

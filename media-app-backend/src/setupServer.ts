@@ -14,6 +14,7 @@ import { Server } from 'socket.io';
 import { CustomError, IErrorResponse } from '@global/helpers/errorHandler';
 import { config } from '@root/config';
 import applicationRoutes from '@root/routes';
+import { SocketIOPostHandler } from '@socket/post.sockets';
 
 const SERVER_PORT = 8000;
 const log = config.createLogger('server');
@@ -113,7 +114,7 @@ export class AppServer {
   }
 
   private socketIOConnections(io: Server): void {
-    console.log(io);
-    return;
+    const socketIOPostHandler = new SocketIOPostHandler(io);
+    socketIOPostHandler.listen();
   }
 }

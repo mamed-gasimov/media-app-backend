@@ -1,4 +1,4 @@
-import { model, Model, Schema } from 'mongoose';
+import { model, Schema } from 'mongoose';
 
 import { IUserDocument } from '@user/interfaces/user.interface';
 
@@ -32,5 +32,4 @@ const userSchema = new Schema({
   bgImageId: { type: String, default: '' },
 });
 
-const UserModel: Model<IUserDocument> = model<IUserDocument>('User', userSchema, 'User');
-export { UserModel };
+export const UserModel = model<IUserDocument>('User', userSchema, 'User');

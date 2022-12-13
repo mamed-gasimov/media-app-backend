@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Request, Response } from 'express';
-
 import { signIn } from '@auth/controllers/signin';
 import { CustomError } from '@global/helpers/errorHandler';
 import { Helpers } from '@global/helpers/helpers';
@@ -20,8 +18,8 @@ jest.useFakeTimers();
 jest.mock('@service/queues/base.queue');
 
 const getTestData = (body: { username: string; password: string }, outputMessage: string) => {
-  const req = authMockRequest({}, body) as Request;
-  const res: Response = authMockResponse();
+  const req = authMockRequest({}, body);
+  const res = authMockResponse();
 
   signIn.read(req, res).catch((error: CustomError) => {
     expect(error.statusCode).toEqual(400);
@@ -64,8 +62,8 @@ describe('SignIn', () => {
   });
 
   it('should throw an error if username does not exist', () => {
-    const req: Request = authMockRequest({}, { username: USERNAME, password: PASSWORD }) as Request;
-    const res: Response = authMockResponse();
+    const req = authMockRequest({}, { username: USERNAME, password: PASSWORD });
+    const res = authMockResponse();
     jest.spyOn(authService, 'getAuthUserByUsername').mockResolvedValueOnce(null);
 
     signIn.read(req, res).catch((error: CustomError) => {
@@ -76,8 +74,8 @@ describe('SignIn', () => {
   });
 
   it('should throw an error if password is not correct', async () => {
-    const req: Request = authMockRequest({}, { username: USERNAME, password: PASSWORD }) as Request;
-    const res: Response = authMockResponse();
+    const req = authMockRequest({}, { username: USERNAME, password: PASSWORD });
+    const res = authMockResponse();
     authMock.comparePassword = () => Promise.resolve(false);
 
     signIn.read(req, res).catch((error: CustomError) => {
@@ -87,8 +85,8 @@ describe('SignIn', () => {
   });
 
   it('should set session data for valid credentials and send correct json response', async () => {
-    const req: Request = authMockRequest({}, { username: USERNAME, password: PASSWORD }) as Request;
-    const res: Response = authMockResponse();
+    const req = authMockRequest({}, { username: USERNAME, password: PASSWORD });
+    const res = authMockResponse();
     authMock.comparePassword = () => Promise.resolve(true);
     jest.spyOn(authService, 'getAuthUserByUsername').mockResolvedValue(authMock);
     jest.spyOn(userService, 'getUserByAuthId').mockResolvedValue(mergedAuthAndUserData);

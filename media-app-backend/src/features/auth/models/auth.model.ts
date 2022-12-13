@@ -1,5 +1,5 @@
 import { compare, hash } from 'bcryptjs';
-import { model, Model, Schema } from 'mongoose';
+import { model, Schema } from 'mongoose';
 
 import { IAuthDocument } from '@auth/interfaces/auth.interface';
 
@@ -41,5 +41,4 @@ authSchema.methods.hashPassword = async function (password: string): Promise<str
   return hash(password, SALT_ROUND);
 };
 
-const AuthModel: Model<IAuthDocument> = model<IAuthDocument>('Auth', authSchema, 'Auth');
-export { AuthModel };
+export const AuthModel = model<IAuthDocument>('Auth', authSchema, 'Auth');
