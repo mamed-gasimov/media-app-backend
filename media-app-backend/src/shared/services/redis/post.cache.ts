@@ -88,12 +88,12 @@ export class PostCache extends BaseCache {
         await this.client.connect();
       }
 
-      const postCount = await this.client.HMGET(`users:${currentUserId}`, 'postCount');
+      const postsCount = await this.client.HMGET(`users:${currentUserId}`, 'postsCount');
       const multi = this.client.multi();
       multi.ZADD('post', { score: parseInt(uId, 10), value: `${key}` });
       multi.HSET(`posts:${key}`, dataToSave);
-      const count = parseInt(postCount[0], 10) + 1;
-      multi.HSET(`users:${currentUserId}`, ['postCount', count]);
+      const count = parseInt(postsCount[0], 10) + 1;
+      multi.HSET(`users:${currentUserId}`, ['postsCount', count]);
       multi.exec();
     } catch (error) {
       log.error(error);
@@ -189,14 +189,14 @@ export class PostCache extends BaseCache {
         await this.client.connect();
       }
 
-      const postCount = await this.client.HMGET(`users:${currentUserId}`, 'postCount');
+      const postsCount = await this.client.HMGET(`users:${currentUserId}`, 'postsCount');
       const multi = this.client.multi();
       multi.ZREM('post', `${key}`);
       multi.DEL(`posts:${key}`);
       multi.DEL(`comments:${key}`);
       multi.DEL(`reactions:${key}`);
-      const count = parseInt(postCount[0], 10) - 1;
-      multi.HSET(`users:${currentUserId}`, ['postCount', count]);
+      const count = parseInt(postsCount[0], 10) - 1;
+      multi.HSET(`users:${currentUserId}`, ['postsCount', count]);
       await multi.exec();
     } catch (error) {
       log.error(error);
@@ -224,15 +224,15 @@ export class PostCache extends BaseCache {
         'gifUrl',
         `${gifUrl}`,
         'imgVersion',
-        `${imgVersion}`,
+        `${imgVersion || ''}`,
         'imgId',
-        `${imgId}`,
+        `${imgId || ''}`,
         'profilePicture',
         `${profilePicture}`,
         'videoId',
-        `${videoId}`,
+        `${videoId || ''}`,
         'videoVersion',
-        `${videoVersion}`,
+        `${videoVersion || ''}`,
         'updatedAt',
         `${new Date()}`,
       ];

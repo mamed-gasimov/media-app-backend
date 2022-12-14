@@ -53,8 +53,8 @@ class UpdatePost {
     const updatedPostData = {
       post,
       bgColor,
-      imgVersion: `${result?.version || imgVersion}`,
-      imgId: `${result?.public_id || imgId}`,
+      imgVersion: `${result?.version || imgVersion || ''}`,
+      imgId: `${result?.public_id || imgId || ''}`,
       videoId,
       videoVersion,
       feelings,
