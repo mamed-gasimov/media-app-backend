@@ -23,6 +23,10 @@ class PostService {
     return PostModel.find({}).countDocuments();
   }
 
+  public async findPostById(postId: string) {
+    return PostModel.findOne({ _id: postId }).exec();
+  }
+
   public async deletePost(postId: string, userId: string) {
     const deletePost = PostModel.deleteOne({ _id: postId });
     const decrementPostCount = UserModel.updateOne({ _id: userId }, { $inc: { postsCount: -1 } });
