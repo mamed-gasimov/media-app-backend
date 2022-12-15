@@ -12,6 +12,7 @@ import {
   updatedPost,
   updatedPostWithImage,
 } from '@root/mocks/post.mock';
+import { postService } from '@service/db/post.service';
 import { postQueue } from '@service/queues/post.queue';
 import { PostCache } from '@service/redis/post.cache';
 import * as postServer from '@socket/post.sockets';
@@ -42,6 +43,9 @@ describe('Update Post', () => {
     it('should send correct json response', async () => {
       const req = postMockRequest(updatedPost, authUserPayload, { postId: `${postMockData._id}` });
       const res = postMockResponse();
+
+      jest.spyOn(postService, 'findPostById').mockImplementation((): any => Promise.resolve(postMockData));
+
       const postSpy = jest.spyOn(PostCache.prototype, 'updatePostInCache').mockResolvedValue(postMockData);
       jest.spyOn(postServer.socketIOPostObject, 'emit');
       jest.spyOn(postQueue, 'addPostJob');
@@ -76,6 +80,18 @@ describe('Update Post', () => {
         expect(error.serializeErrors().message).toEqual('Invalid request.');
       });
     });
+
+    it('should throw an error if post does not exist', async () => {
+      const req = postMockRequest(updatedPost, authUserPayload, { postId: '551137c2f9e1fac808a5f572' });
+      const res = postMockResponse();
+
+      jest.spyOn(postService, 'findPostById').mockImplementation((): any => Promise.resolve(null));
+
+      updatePost.post(req, res).catch((error: CustomError) => {
+        expect(error.statusCode).toEqual(400);
+        expect(error.serializeErrors().message).toEqual('Post was not found');
+      });
+    });
   });
 
   describe('post with image', () => {
@@ -83,6 +99,8 @@ describe('Update Post', () => {
       updatedPostWithImage.image = 'some invalid string';
       const req = postMockRequest(updatedPostWithImage, authUserPayload, { postId: `${postMockData._id}` });
       const res = postMockResponse();
+
+      jest.spyOn(postService, 'findPostById').mockImplementation((): any => Promise.resolve(postMockData));
       jest
         .spyOn(cloudinaryUploads, 'uploads')
         .mockImplementation((): any => Promise.resolve({ version: '', public_id: '', message: 'Upload error' }));
@@ -99,6 +117,9 @@ describe('Update Post', () => {
       updatedPostWithImage.image = 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ==';
       const req = postMockRequest(updatedPostWithImage, authUserPayload, { postId: `${postMockData._id}` });
       const res = postMockResponse();
+
+      jest.spyOn(postService, 'findPostById').mockImplementation((): any => Promise.resolve(postMockData));
+
       const postSpy = jest.spyOn(PostCache.prototype, 'updatePostInCache');
       jest.spyOn(postServer.socketIOPostObject, 'emit');
       jest.spyOn(postQueue, 'addPostJob');
@@ -128,6 +149,9 @@ describe('Update Post', () => {
       updatedPostWithImage.image = 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ==';
       const req = postMockRequest(updatedPostWithImage, authUserPayload, { postId: `${postMockData._id}` });
       const res = postMockResponse();
+
+      jest.spyOn(postService, 'findPostById').mockImplementation((): any => Promise.resolve(postMockData));
+
       const postSpy = jest.spyOn(PostCache.prototype, 'updatePostInCache');
       jest.spyOn(postServer.socketIOPostObject, 'emit');
       jest.spyOn(postQueue, 'addPostJob');

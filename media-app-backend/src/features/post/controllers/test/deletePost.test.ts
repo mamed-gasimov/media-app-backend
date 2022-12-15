@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Server } from 'socket.io';
 
 import { CustomError } from '@global/helpers/errorHandler';
 import { deletePost } from '@post/controllers/deletePost';
 import { authUserPayload } from '@root/mocks/auth.mock';
 import { newPost, postMockRequest, postMockResponse } from '@root/mocks/post.mock';
+import { postService } from '@service/db/post.service';
 import { postQueue } from '@service/queues/post.queue';
 import { PostCache } from '@service/redis/post.cache';
 import * as postServer from '@socket/post.sockets';
@@ -47,9 +49,24 @@ describe('Delete Post', () => {
     });
   });
 
+  it('should throw an error if post does not exist', async () => {
+    const req = postMockRequest(newPost, authUserPayload, { postId: '551137c2f9e1fac808a5f572' });
+    const res = postMockResponse();
+
+    jest.spyOn(postService, 'findPostById').mockImplementation((): any => Promise.resolve(null));
+
+    deletePost.post(req, res).catch((error: CustomError) => {
+      expect(error.statusCode).toEqual(400);
+      expect(error.serializeErrors().message).toEqual('Post was not found');
+    });
+  });
+
   it('should send correct json response', async () => {
     const req = postMockRequest(newPost, authUserPayload, { postId: '551137c2f9e1fac808a5f572' });
     const res = postMockResponse();
+
+    jest.spyOn(postService, 'findPostById').mockImplementation((): any => Promise.resolve({}));
+
     jest.spyOn(postServer.socketIOPostObject, 'emit');
     jest.spyOn(PostCache.prototype, 'deletePostFromCache');
     jest.spyOn(postQueue, 'addPostJob');
