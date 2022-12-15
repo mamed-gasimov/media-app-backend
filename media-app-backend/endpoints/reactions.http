@@ -15,3 +15,15 @@ withCredentials: true
   "postReactions": { "like": 0, "love": 0, "happy": 0, "sad": 0, "wow": 0, "angry": 0 },
   "profilePicture": "<cloudinary-user-profile-picture-url>"
 }
+
+###
+DELETE {{baseUrl}}/{{urlPath}}/post/reaction
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+{
+  "postId": "",
+  "previousReaction": "",
+  "postReactions": { "like": 0, "love": 0, "happy": 0, "sad": 0, "wow": 0, "angry": 0 }
+}

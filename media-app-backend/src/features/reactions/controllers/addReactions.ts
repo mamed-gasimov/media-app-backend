@@ -5,11 +5,12 @@ import { ObjectId } from 'mongodb';
 import { joiValidation } from '@global/decorators/joiValidation.decorator';
 import { BadRequestError } from '@global/helpers/errorHandler';
 import { Helpers } from '@global/helpers/helpers';
-import { IReactionDocument } from '@reaction/interfaces/reaction.interface';
+import { IReactionDocument, IReactionJob } from '@reaction/interfaces/reaction.interface';
 import { addReactionSchema } from '@reaction/schemas/reactions';
 import { postService } from '@service/db/post.service';
 import { userService } from '@service/db/user.service';
 import { ReactionsCache } from '@service/redis/reaction.cache';
+import { reactionQueue } from '@service/queues/reaction.queue';
 
 const reactionCache = new ReactionsCache();
 
@@ -44,6 +45,18 @@ class AddReactions {
     } as IReactionDocument;
 
     await reactionCache.savePostReactionToCache(postId, reactionObject, postReactions, type, previousReaction);
+
+    const databaseReactionData: IReactionJob = {
+      postId,
+      userTo,
+      userFrom: req.currentUser!.userId,
+      username: req.currentUser!.username,
+      type,
+      previousReaction,
+      reactionObject,
+    };
+    reactionQueue.addReactionJob('addReactionDataToDb', databaseReactionData);
+
     res.status(HTTP_STATUS.OK).json({ message: 'Reaction added successfully.' });
   }
 }
