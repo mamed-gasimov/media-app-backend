@@ -60,12 +60,45 @@ export class ReactionsCache extends BaseCache {
     }
   }
 
+  public async getReactionsFromCache(postId: string): Promise<IReactionDocument[]> {
+    try {
+      if (!this.client.isOpen) {
+        await this.client.connect();
+      }
+
+      const response = await this.client.LRANGE(`reactions:${postId}`, 0, -1);
+      const list: IReactionDocument[] = response.map((item) => Helpers.parseJson(item));
+      return list;
+    } catch (error) {
+      log.error(error);
+      throw new ServerError('Server error. Try again.');
+    }
+  }
+
+  public async getSingleReactionFromCache(postId: string, username: string): Promise<IReactionDocument | undefined> {
+    try {
+      if (!this.client.isOpen) {
+        await this.client.connect();
+      }
+
+      const response = await this.client.LRANGE(`reactions:${postId}`, 0, -1);
+      const list: IReactionDocument[] = response.map((item) => Helpers.parseJson(item));
+
+      return find(list, (listItem) => {
+        return listItem?.postId === postId && listItem?.username === username;
+      });
+    } catch (error) {
+      log.error(error);
+      throw new ServerError('Server error. Try again.');
+    }
+  }
+
   private getPreviousReaction(response: string[], username: string) {
     const list: IReactionDocument[] = [];
     for (const item of response) {
       list.push(Helpers.parseJson(item));
     }
 
-    return find(list, (listItem) => listItem.username === username);
+    return find(list, (listItem) => listItem?.username === username);
   }
 }

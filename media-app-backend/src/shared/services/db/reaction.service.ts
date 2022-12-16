@@ -1,11 +1,13 @@
 import { omit } from 'lodash';
+import { Types } from 'mongoose';
 
-import { IReactionDocument, IReactionJob } from '@reaction/interfaces/reaction.interface';
+import { IQueryReaction, IReactionDocument, IReactionJob } from '@reaction/interfaces/reaction.interface';
 import { ReactionModel } from '@reaction/models/reaction.model';
 import { UserCache } from '@service/redis/user.cache';
 import { PostModel } from '@post/models/post.model';
 import { IUserDocument } from '@user/interfaces/user.interface';
 import { IPostDocument } from '@post/interfaces/post.interface';
+import { Helpers } from '@global/helpers/helpers';
 
 const userCache = new UserCache();
 
@@ -47,6 +49,28 @@ class ReactionService {
         { new: true }
       ),
     ]);
+  }
+
+  public async getPostReactions(query: IQueryReaction, sort: Record<string, 1 | -1>) {
+    const reactions: IReactionDocument[] = await ReactionModel.aggregate([{ $match: query }, { $sort: sort }]);
+    return reactions;
+  }
+
+  public async getSinglePostReactionByUsername(
+    postId: string,
+    username: string
+  ): Promise<IReactionDocument | undefined> {
+    const reactions: IReactionDocument[] = await ReactionModel.aggregate([
+      { $match: { postId: new Types.ObjectId(postId), username: Helpers.firstLetterUpperCase(username) } },
+    ]);
+    return reactions?.[0];
+  }
+
+  public async getReactionsByUsername(username: string): Promise<IReactionDocument[]> {
+    const reactions: IReactionDocument[] = await ReactionModel.aggregate([
+      { $match: { username: Helpers.firstLetterUpperCase(username) } },
+    ]);
+    return reactions;
   }
 }
 

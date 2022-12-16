@@ -39,4 +39,19 @@ const removeReactionSchema = Joi.object().keys({
   }).required(),
 });
 
-export { addReactionSchema, removeReactionSchema };
+const singleReactionByUsernameSchema = Joi.object().keys({
+  postId: Joi.string().required().messages({
+    'any.required': 'postId is a required property',
+  }),
+  username: Joi.string().required().messages({
+    'any.required': 'Username is a required property',
+  }),
+});
+
+const reactionsByUsernameSchema = Joi.object().keys({
+  username: Joi.string().required().messages({
+    'any.required': 'Username is a required property',
+  }),
+});
+
+export { addReactionSchema, removeReactionSchema, singleReactionByUsernameSchema, reactionsByUsernameSchema };
