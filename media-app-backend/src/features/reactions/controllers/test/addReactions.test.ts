@@ -51,28 +51,6 @@ describe('Add reaction to post', () => {
     });
   });
 
-  it('should throw an error if postReactions is not available', async () => {
-    const req = reactionMockRequest({}, { ...reactionMock, postReactions: undefined }, authUserPayload);
-    const res = reactionMockResponse();
-    addReactions.reactions(req, res).catch((error: CustomError) => {
-      expect(error.statusCode).toEqual(400);
-      expect(error.serializeErrors().message).toEqual('"postReactions" is required');
-    });
-  });
-
-  it('should throw an error if postReactions object does not have like property', async () => {
-    const req = reactionMockRequest(
-      {},
-      { ...reactionMock, postReactions: { ...reactionMock.postReactions, like: undefined } },
-      authUserPayload
-    );
-    const res = reactionMockResponse();
-    addReactions.reactions(req, res).catch((error: CustomError) => {
-      expect(error.statusCode).toEqual(400);
-      expect(error.serializeErrors().message).toEqual('"postReactions.like" is required');
-    });
-  });
-
   it('should throw an error if postId is not available', async () => {
     const req = reactionMockRequest({}, { ...reactionMock, postId: '' }, authUserPayload);
     const res = reactionMockResponse();
@@ -149,8 +127,7 @@ describe('Add reaction to post', () => {
       spy.mock.calls[0][0],
       spy.mock.calls[0][1],
       spy.mock.calls[0][2],
-      spy.mock.calls[0][3],
-      spy.mock.calls[0][4]
+      spy.mock.calls[0][3]
     );
     expect(reactionQueue.addReactionJob).toHaveBeenCalledWith(
       reactionSpy.mock.calls[0][0],

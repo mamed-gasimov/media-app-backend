@@ -51,27 +51,11 @@ export const reactionMock = {
   profilePicture: 'http://place-hold.it/500x500',
   userTo: '60263f14648fed5246e322d9',
   type: 'like',
-  postReactions: {
-    like: 1,
-    love: 0,
-    happy: 0,
-    wow: 0,
-    sad: 0,
-    angry: 0,
-  },
 };
 
 export const removeReactionMock = {
   postId: '6027f77087c9d9ccb1555268',
   previousReaction: 'like',
-  postReactions: {
-    like: 1,
-    love: 0,
-    happy: 0,
-    wow: 0,
-    sad: 0,
-    angry: 0,
-  },
 };
 
 export const reactionData: IReactionDocument = {

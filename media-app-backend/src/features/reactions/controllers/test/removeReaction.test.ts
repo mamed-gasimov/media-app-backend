@@ -62,28 +62,6 @@ describe('Remove reaction from post', () => {
     });
   });
 
-  it('should throw an error if postReactions is not available', async () => {
-    const req = reactionMockRequest({}, { ...removeReactionMock, postReactions: undefined }, authUserPayload);
-    const res = reactionMockResponse();
-    removeReactions.reactions(req, res).catch((error: CustomError) => {
-      expect(error.statusCode).toEqual(400);
-      expect(error.serializeErrors().message).toEqual('"postReactions" is required');
-    });
-  });
-
-  it('should throw an error if postReactions object does not have like property', async () => {
-    const req = reactionMockRequest(
-      {},
-      { ...removeReactionMock, postReactions: { ...removeReactionMock.postReactions, like: undefined } },
-      authUserPayload
-    );
-    const res = reactionMockResponse();
-    removeReactions.reactions(req, res).catch((error: CustomError) => {
-      expect(error.statusCode).toEqual(400);
-      expect(error.serializeErrors().message).toEqual('"postReactions.like" is required');
-    });
-  });
-
   it('should send correct json response', async () => {
     const req = reactionMockRequest({}, removeReactionMock, authUserPayload);
     const res = reactionMockResponse();
@@ -97,7 +75,7 @@ describe('Remove reaction from post', () => {
     expect(ReactionsCache.prototype.removePostReactionFromCache).toHaveBeenCalledWith(
       '6027f77087c9d9ccb1555268',
       `${req.currentUser?.username}`,
-      req.body?.postReactions
+      req.body?.previousReaction
     );
     expect(reactionQueue.addReactionJob).toHaveBeenCalledWith(spy.mock.calls[0][0], spy.mock.calls[0][1]);
     expect(res.status).toHaveBeenCalledWith(200);

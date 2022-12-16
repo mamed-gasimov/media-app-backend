@@ -41,3 +41,5 @@ export interface IReaction {
   senderName: string;
   type: string;
 }
+
+export type ReactionType = 'like' | 'love' | 'happy' | 'wow' | 'sad' | 'angry';

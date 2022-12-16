@@ -5,7 +5,7 @@ import { ObjectId } from 'mongodb';
 import { joiValidation } from '@global/decorators/joiValidation.decorator';
 import { BadRequestError } from '@global/helpers/errorHandler';
 import { Helpers } from '@global/helpers/helpers';
-import { IReactionDocument, IReactionJob } from '@reaction/interfaces/reaction.interface';
+import { IReactionDocument, IReactionJob, ReactionType } from '@reaction/interfaces/reaction.interface';
 import { addReactionSchema } from '@reaction/schemas/reactions';
 import { postService } from '@service/db/post.service';
 import { userService } from '@service/db/user.service';
@@ -33,7 +33,13 @@ class AddReactions {
       throw new BadRequestError('User was not found');
     }
 
-    const { type, profilePicture, previousReaction, postReactions } = req.body;
+    const { type, profilePicture } = req.body;
+    const previousReaction: ReactionType = req.body.previousReaction;
+
+    if (previousReaction && existingPost.reactions && existingPost.reactions[previousReaction] === 0) {
+      throw new BadRequestError('Reaction count for post reactions must be positive integer');
+    }
+
     const reactionObject = {
       _id: new ObjectId(),
       avataColor: req.currentUser!.avatarColor,
@@ -44,7 +50,7 @@ class AddReactions {
       userTo,
     } as IReactionDocument;
 
-    await reactionCache.savePostReactionToCache(postId, reactionObject, postReactions, type, previousReaction);
+    await reactionCache.savePostReactionToCache(postId, reactionObject, type, previousReaction);
 
     const databaseReactionData: IReactionJob = {
       postId,

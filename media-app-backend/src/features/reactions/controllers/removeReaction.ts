@@ -4,7 +4,7 @@ import HTTP_STATUS from 'http-status-codes';
 import { joiValidation } from '@global/decorators/joiValidation.decorator';
 import { BadRequestError } from '@global/helpers/errorHandler';
 import { Helpers } from '@global/helpers/helpers';
-import { IReactionJob } from '@reaction/interfaces/reaction.interface';
+import { IReactionJob, ReactionType } from '@reaction/interfaces/reaction.interface';
 import { removeReactionSchema } from '@reaction/schemas/reactions';
 import { postService } from '@service/db/post.service';
 import { ReactionsCache } from '@service/redis/reaction.cache';
@@ -26,17 +26,20 @@ class RemoveReactions {
       throw new BadRequestError('Post was not found');
     }
 
-    const { previousReaction, postReactions } = req.body;
+    const previousReaction: ReactionType = req.body.previousReaction;
+    if (existingPost.reactions && existingPost.reactions[previousReaction] === 0) {
+      throw new BadRequestError('Reaction count for post reactions must be positive integer');
+    }
 
-    await reactionCache.removePostReactionFromCache(postId, `${req.currentUser!.username}`, postReactions);
+    await reactionCache.removePostReactionFromCache(postId, `${req.currentUser!.username}`, previousReaction);
 
     const reactionData: IReactionJob = {
       postId,
       username: req.currentUser!.username,
       previousReaction,
     };
-    reactionQueue.addReactionJob('removeReactionDataFromDb', reactionData);
 
+    reactionQueue.addReactionJob('removeReactionDataFromDb', reactionData);
     res.status(HTTP_STATUS.OK).json({ message: 'Reaction removed from post successfully.' });
   }
 }
