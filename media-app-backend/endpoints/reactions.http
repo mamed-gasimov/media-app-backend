@@ -1,0 +1,54 @@
+@baseUrl = http://localhost:8000
+@urlPath = api
+
+###
+POST {{baseUrl}}/{{urlPath}}/post/reaction
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+{
+  "userTo": "",
+  "postId": "",
+  "type": "",
+  "previousReaction": "",
+  "profilePicture": "<cloudinary-user-profile-picture-url>"
+}
+
+###
+DELETE {{baseUrl}}/{{urlPath}}/post/reaction
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+{
+  "postId": "",
+  "previousReaction": ""
+}
+
+###
+GET {{baseUrl}}/{{urlPath}}/post/reactions/<postId>
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+###
+POST {{baseUrl}}/{{urlPath}}/post/reactions/reaction
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+{
+  "postId": "",
+  "username": ""
+}
+
+###
+POST {{baseUrl}}/{{urlPath}}/post/reactions/user
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+{
+  "username": ""
+}

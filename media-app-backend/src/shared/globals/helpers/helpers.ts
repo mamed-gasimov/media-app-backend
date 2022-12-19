@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { ObjectId } from 'mongodb';
 
 export class Helpers {
   static firstLetterUpperCase(str: string) {
@@ -35,5 +36,18 @@ export class Helpers {
       return prop;
     }
     return JSON.parse(prop);
+  }
+
+  static checkValidObjectId(id: string) {
+    if (!id || !ObjectId.isValid(id)) {
+      return false;
+    }
+
+    const objectId = new ObjectId(id);
+    if (String(objectId) !== id) {
+      return false;
+    }
+
+    return true;
   }
 }

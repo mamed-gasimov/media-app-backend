@@ -1,13 +1,14 @@
 import { UploadApiErrorResponse, UploadApiResponse } from 'cloudinary';
 import { Request, Response } from 'express';
 import HTTP_STATUS from 'http-status-codes';
-import { ObjectId } from 'mongodb';
 
 import { joiValidation } from '@global/decorators/joiValidation.decorator';
 import { uploads } from '@global/helpers/cloudinaryUpload';
 import { BadRequestError } from '@global/helpers/errorHandler';
+import { Helpers } from '@global/helpers/helpers';
 import { IPostDocument } from '@post/interfaces/post.interface';
 import { postSchema } from '@post/schemas/post';
+import { postService } from '@service/db/post.service';
 import { postQueue } from '@service/queues/post.queue';
 import { PostCache } from '@service/redis/post.cache';
 import { socketIOPostObject } from '@socket/post.sockets';
@@ -18,13 +19,13 @@ class UpdatePost {
   @joiValidation(postSchema)
   public async post(req: Request, res: Response) {
     const { postId } = req.params;
-    if (!postId || !ObjectId.isValid(postId)) {
+    if (!Helpers.checkValidObjectId(postId)) {
       throw new BadRequestError('Invalid request.');
     }
 
-    const objectId = new ObjectId(postId);
-    if (String(objectId) !== postId) {
-      throw new BadRequestError('Invalid request.');
+    const existingPost = await postService.findPostById(postId);
+    if (!existingPost) {
+      throw new BadRequestError('Post was not found');
     }
 
     const {
@@ -52,8 +53,8 @@ class UpdatePost {
     const updatedPostData = {
       post,
       bgColor,
-      imgVersion: `${result?.version || imgVersion}`,
-      imgId: `${result?.public_id || imgId}`,
+      imgVersion: `${result?.version || imgVersion || ''}`,
+      imgId: `${result?.public_id || imgId || ''}`,
       videoId,
       videoVersion,
       feelings,

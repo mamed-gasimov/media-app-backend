@@ -4,9 +4,10 @@ import { authRoutes } from '@auth/routes/authRoutes';
 import { currentUserRoutes } from '@auth/routes/currentUserRoutes';
 import { authMiddleware } from '@global/helpers/authMiddleware';
 import { postRoutes } from '@post/routes/postRoutes';
+import { reactionRoutes } from '@reaction/routes/reactionRoutes';
 import { serverAdapter } from '@service/queues/base.queue';
 
-const BASE_PATH = '/api/v1';
+const BASE_PATH = '/api';
 
 const applicationRoutes = (app: Application) => {
   const routes = () => {
@@ -16,6 +17,7 @@ const applicationRoutes = (app: Application) => {
 
     app.use(BASE_PATH, authMiddleware.verifyUser, currentUserRoutes.routes());
     app.use(BASE_PATH, authMiddleware.verifyUser, postRoutes.routes());
+    app.use(BASE_PATH, authMiddleware.verifyUser, reactionRoutes.routes());
   };
 
   routes();
