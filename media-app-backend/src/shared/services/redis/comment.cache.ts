@@ -66,7 +66,7 @@ export class CommentsCache extends BaseCache {
         count: commentsCount,
         names: list,
       };
-      return response;
+      return [response];
     } catch (error) {
       log.error(error);
       throw new ServerError('Server error. Try again.');
@@ -83,11 +83,11 @@ export class CommentsCache extends BaseCache {
       for (const item of comments) {
         list.push(Helpers.parseJson(item));
       }
-      const result: ICommentDocument | undefined = find(list, (listItem: ICommentDocument) => {
+      const result = find(list, (listItem: ICommentDocument) => {
         return listItem._id === commentId;
-      });
+      }) as ICommentDocument;
 
-      return result || null;
+      return [result];
     } catch (error) {
       log.error(error);
       throw new ServerError('Server error. Try again.');

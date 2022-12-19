@@ -47,7 +47,7 @@ class AddComment {
       username: req.currentUser!.username,
       comment: commentData,
     };
-    commentQueue.addPostCommentJob('addCommentToDB', databaseCommentData);
+    commentQueue.addPostCommentJob('addPostCommentToDb', databaseCommentData);
 
     res.status(HTTP_STATUS.OK).json({ message: 'Comment added successfully.' });
   }
