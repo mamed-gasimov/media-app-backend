@@ -8,7 +8,6 @@ import { Helpers } from '@global/helpers/helpers';
 import { IReactionDocument, IReactionJob, ReactionType } from '@reaction/interfaces/reaction.interface';
 import { addReactionSchema } from '@reaction/schemas/reactions';
 import { postService } from '@service/db/post.service';
-import { userService } from '@service/db/user.service';
 import { ReactionsCache } from '@service/redis/reaction.cache';
 import { reactionQueue } from '@service/queues/reaction.queue';
 
@@ -17,20 +16,15 @@ const reactionCache = new ReactionsCache();
 class AddReactions {
   @joiValidation(addReactionSchema)
   public async reactions(req: Request, res: Response) {
-    const { userTo, postId } = req.body;
+    const { postId } = req.body;
 
-    if (!Helpers.checkValidObjectId(postId) || !Helpers.checkValidObjectId(userTo)) {
+    if (!Helpers.checkValidObjectId(postId)) {
       throw new BadRequestError('Invalid request.');
     }
 
     const existingPost = await postService.findPostById(postId);
     if (!existingPost) {
       throw new BadRequestError('Post was not found');
-    }
-
-    const existingUser = await userService.findUserById(userTo);
-    if (!existingUser) {
-      throw new BadRequestError('User was not found');
     }
 
     const { type, profilePicture } = req.body;
@@ -47,14 +41,14 @@ class AddReactions {
       postId,
       type,
       profilePicture,
-      userTo,
+      userTo: existingPost.userId,
     } as IReactionDocument;
 
     await reactionCache.savePostReactionToCache(postId, reactionObject, type, previousReaction);
 
     const databaseReactionData: IReactionJob = {
       postId,
-      userTo,
+      userTo: existingPost.userId,
       userFrom: req.currentUser!.userId,
       username: req.currentUser!.username,
       type,

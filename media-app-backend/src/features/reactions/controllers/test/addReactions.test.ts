@@ -6,7 +6,6 @@ import { reactionQueue } from '@service/queues/reaction.queue';
 import { addReactions } from '@reaction/controllers/addReactions';
 import { CustomError } from '@global/helpers/errorHandler';
 import { postService } from '@service/db/post.service';
-import { userService } from '@service/db/user.service';
 
 jest.useFakeTimers();
 jest.mock('@service/queues/base.queue');
@@ -60,26 +59,8 @@ describe('Add reaction to post', () => {
     });
   });
 
-  it('should throw an error if userTo is not available', async () => {
-    const req = reactionMockRequest({}, { ...reactionMock, userTo: '' }, authUserPayload);
-    const res = reactionMockResponse();
-    addReactions.reactions(req, res).catch((error: CustomError) => {
-      expect(error.statusCode).toEqual(400);
-      expect(error.serializeErrors().message).toEqual('"userTo" is not allowed to be empty');
-    });
-  });
-
   it('should throw an error if postId is not valid mongodb ObjectId', async () => {
     const req = reactionMockRequest({}, { ...reactionMock, postId: '12345' }, authUserPayload);
-    const res = reactionMockResponse();
-    addReactions.reactions(req, res).catch((error: CustomError) => {
-      expect(error.statusCode).toEqual(400);
-      expect(error.serializeErrors().message).toEqual('Invalid request.');
-    });
-  });
-
-  it('should throw an error if userTo is not valid mongodb ObjectId', async () => {
-    const req = reactionMockRequest({}, { ...reactionMock, userTo: '12345' }, authUserPayload);
     const res = reactionMockResponse();
     addReactions.reactions(req, res).catch((error: CustomError) => {
       expect(error.statusCode).toEqual(400);
@@ -99,25 +80,11 @@ describe('Add reaction to post', () => {
     });
   });
 
-  it('should throw an error if user does not exist', async () => {
-    const req = reactionMockRequest({}, reactionMock, authUserPayload);
-    const res = reactionMockResponse();
-
-    jest.spyOn(postService, 'findPostById').mockImplementation((): any => Promise.resolve({}));
-    jest.spyOn(userService, 'findUserById').mockImplementation((): any => Promise.resolve(null));
-
-    addReactions.reactions(req, res).catch((error: CustomError) => {
-      expect(error.statusCode).toEqual(400);
-      expect(error.serializeErrors().message).toEqual('User was not found');
-    });
-  });
-
   it('should send correct json response', async () => {
     const req = reactionMockRequest({}, reactionMock, authUserPayload);
     const res = reactionMockResponse();
 
     jest.spyOn(postService, 'findPostById').mockImplementation((): any => Promise.resolve({}));
-    jest.spyOn(userService, 'findUserById').mockImplementation((): any => Promise.resolve({}));
 
     const spy = jest.spyOn(ReactionsCache.prototype, 'savePostReactionToCache');
     const reactionSpy = jest.spyOn(reactionQueue, 'addReactionJob');

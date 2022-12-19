@@ -9,12 +9,13 @@ import { IPostJobData } from '@post/interfaces/post.interface';
 import { config } from '@root/config';
 import { IEmailJob } from '@user/interfaces/user.interface';
 import { IReactionJob } from '@reaction/interfaces/reaction.interface';
+import { ICommentJob } from '@comment/interfaces/comments.interface';
 
 let bullAdapters: BullAdapter[] = [];
 
 export let serverAdapter: ExpressAdapter;
 
-export type IBaseJobData = IAuthJob | IEmailJob | IPostJobData | IReactionJob;
+export type IBaseJobData = IAuthJob | IEmailJob | IPostJobData | IReactionJob | ICommentJob;
 
 export abstract class BaseQueue {
   queue: Queue.Queue;

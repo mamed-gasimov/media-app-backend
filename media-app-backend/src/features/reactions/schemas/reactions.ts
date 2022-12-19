@@ -1,9 +1,6 @@
 import Joi from 'joi';
 
 const addReactionSchema = Joi.object().keys({
-  userTo: Joi.string().required().messages({
-    'any.required': 'userTo is a required property',
-  }),
   postId: Joi.string().required().messages({
     'any.required': 'postId is a required property',
   }),
