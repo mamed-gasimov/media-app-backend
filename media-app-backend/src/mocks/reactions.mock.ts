@@ -33,6 +33,7 @@ export interface IBody {
   type?: string;
   previousReaction?: string;
   postReactions?: IReactions | Omit<IReactions, 'like'>;
+  username?: string;
 }
 
 export interface IParams {
@@ -41,7 +42,6 @@ export interface IParams {
   commentId?: string;
   reactionId?: string;
   previousReaction?: string;
-  username?: string;
   postReactions?: string;
 }
 
