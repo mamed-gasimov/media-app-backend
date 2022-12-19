@@ -49,7 +49,6 @@ export const reactionMock = {
   postId: '6027f77087c9d9ccb1555268',
   previousReaction: 'love',
   profilePicture: 'http://place-hold.it/500x500',
-  userTo: '60263f14648fed5246e322d9',
   type: 'like',
 };
 
