@@ -2,7 +2,7 @@ import { ProcessPromiseFunction } from 'bull';
 
 import { BaseQueue, IBaseJobData } from '@service/queues/base.queue';
 import { IReactionJob } from '@reaction/interfaces/reaction.interface';
-import { reactionWorker } from '@root/shared/workers/reaction.worker';
+import { reactionWorker } from '@worker/reaction.worker';
 
 class ReactionQueue extends BaseQueue {
   constructor() {

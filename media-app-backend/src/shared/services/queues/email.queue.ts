@@ -1,6 +1,6 @@
 import { ProcessPromiseFunction } from 'bull';
 
-import { emailWorker } from '@root/shared/workers/email.worker';
+import { emailWorker } from '@worker/email.worker';
 import { BaseQueue, IBaseJobData } from '@service/queues/base.queue';
 import { IEmailJob } from '@user/interfaces/user.interface';
 

@@ -10,12 +10,13 @@ import { config } from '@root/config';
 import { IEmailJob } from '@user/interfaces/user.interface';
 import { IReactionJob } from '@reaction/interfaces/reaction.interface';
 import { ICommentJob } from '@comment/interfaces/comments.interface';
+import { IFollowerJobData } from '@follower/interfaces/follower.interface';
 
 let bullAdapters: BullAdapter[] = [];
 
 export let serverAdapter: ExpressAdapter;
 
-export type IBaseJobData = IAuthJob | IEmailJob | IPostJobData | IReactionJob | ICommentJob;
+export type IBaseJobData = IAuthJob | IEmailJob | IPostJobData | IReactionJob | ICommentJob | IFollowerJobData;
 
 export abstract class BaseQueue {
   queue: Queue.Queue;

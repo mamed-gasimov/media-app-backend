@@ -1,7 +1,7 @@
 import { ProcessPromiseFunction } from 'bull';
 
 import { BaseQueue, IBaseJobData } from '@service/queues/base.queue';
-import { commentWorker } from '@root/shared/workers/comment.worker';
+import { commentWorker } from '@worker/comment.worker';
 import { ICommentJob } from '@comment/interfaces/comments.interface';
 
 class CommentQueue extends BaseQueue {

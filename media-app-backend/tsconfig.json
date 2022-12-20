@@ -36,7 +36,7 @@
       "@global/*": ["src/shared/globals/*"],
       "@service/*": ["src/shared/services/*"],
       "@socket/*": ["src/shared/sockets/*"],
-      "@worker/*": ["src/shared/worker/*"],
+      "@worker/*": ["src/shared/workers/*"],
       "@root/*": ["src/*"]
     }
   }

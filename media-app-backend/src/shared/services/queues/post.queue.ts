@@ -1,7 +1,7 @@
 import { ProcessPromiseFunction } from 'bull';
 
 import { IPostJobData } from '@post/interfaces/post.interface';
-import { postWorker } from '@root/shared/workers/post.worker';
+import { postWorker } from '@worker/post.worker';
 import { BaseQueue, IBaseJobData } from '@service/queues/base.queue';
 
 class PostQueue extends BaseQueue {
