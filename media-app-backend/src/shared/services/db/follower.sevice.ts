@@ -42,6 +42,33 @@ class FollowerService {
     await Promise.all([users, userCache.getUserFromCache(followeeId)]);
   }
 
+  public async removeFollowerFromDb(followeeId: string, followerId: string) {
+    const followeeObjectId = new Types.ObjectId(followeeId);
+    const followerObjectId = new Types.ObjectId(followerId);
+
+    const unfollow = FollowerModel.deleteOne({
+      followeeId: followeeObjectId,
+      followerId: followerObjectId,
+    });
+
+    const users = UserModel.bulkWrite([
+      {
+        updateOne: {
+          filter: { _id: followerId },
+          update: { $inc: { followingCount: -1, $min: 0 } },
+        },
+      },
+      {
+        updateOne: {
+          filter: { _id: followeeId },
+          update: { $inc: { followersCount: -1, $min: 0 } },
+        },
+      },
+    ]);
+
+    await Promise.all([unfollow, users]);
+  }
+
   public async getFolloweesIds(userId: string): Promise<string[]> {
     const followee = await FollowerModel.aggregate([
       { $match: { followerId: new Types.ObjectId(userId) } },
@@ -61,7 +88,7 @@ class FollowerService {
       followeeId: new Types.ObjectId(followeeId),
     })) as IFollowerDocument;
 
-    return data || null;
+    return data;
   }
 }
 

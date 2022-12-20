@@ -8,11 +8,11 @@ class FollowerQueue extends BaseQueue {
   constructor() {
     super('followers');
     this.processJob('addFollowerToDb', 5, followerWorker.addFollowerToDb as ProcessPromiseFunction<IBaseJobData>);
-    // this.processJob(
-    //   'removeFollowerFromDb',
-    //   5,
-    //   followerWorker.removeFollowerFromDB as ProcessPromiseFunction<IBaseJobData>
-    // );
+    this.processJob(
+      'removeFollowerFromDb',
+      5,
+      followerWorker.removeFollowerFromDb as ProcessPromiseFunction<IBaseJobData>
+    );
   }
 
   public addFollowerJob(name: string, data: IFollowerJobData) {

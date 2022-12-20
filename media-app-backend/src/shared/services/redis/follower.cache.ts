@@ -46,7 +46,17 @@ export class FollowerCache extends BaseCache {
       if (!this.client.isOpen) {
         await this.client.connect();
       }
-      await this.client.HINCRBY(`users:${userId}`, prop, value);
+
+      let incValue: 1 | -1 | 0 = value;
+      if (value === -1) {
+        const countStr = await this.client.HMGET(`users:${userId}`, prop);
+        const count = Number(countStr[0]);
+        if (count === 0) {
+          incValue = 0;
+        }
+      }
+
+      await this.client.HINCRBY(`users:${userId}`, prop, incValue);
     } catch (error) {
       log.error(error);
       throw new ServerError('Server error. Try again.');
