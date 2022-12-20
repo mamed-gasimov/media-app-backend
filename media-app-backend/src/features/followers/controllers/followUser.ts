@@ -9,9 +9,10 @@ import { BadRequestError } from '@global/helpers/errorHandler';
 import { Helpers } from '@global/helpers/helpers';
 import { userService } from '@service/db/user.service';
 import { IUserDocument } from '@user/interfaces/user.interface';
-import { IFollowerData } from '@follower/interfaces/follower.interface';
+import { IFollowerData, IFollowerDocument } from '@follower/interfaces/follower.interface';
 import { socketIOFollowerObject } from '@socket/follower.sockets';
 import { followerQueue } from '@service/queues/follower.queue';
+import { followerService } from '@service/db/follower.sevice';
 
 const followerCache = new FollowerCache();
 const userCache = new UserCache();
@@ -22,6 +23,22 @@ class FollowUser {
 
     if (!Helpers.checkValidObjectId(followerId)) {
       throw new BadRequestError('Invalid request.');
+    }
+
+    if (followerId === `${req.currentUser?.userId}`) {
+      throw new BadRequestError('Invalid request.');
+    }
+
+    const followingsList = await followerCache.getFollowersFromCache(`following:${req.currentUser!.userId}`);
+    let alreadyFollow: IFollowerDocument | IFollowerData | null;
+    if (followingsList && followingsList.length) {
+      alreadyFollow = followingsList.find((item) => String(item._id) === followerId) as IFollowerData;
+    } else {
+      alreadyFollow = await followerService.alreadyFollows(`${req.currentUser?.userId}`, followerId);
+    }
+
+    if (alreadyFollow) {
+      throw new BadRequestError('Already following.');
     }
 
     let follower = await userCache.getUserFromCache(followerId);
@@ -50,12 +67,12 @@ class FollowUser {
     );
     await Promise.all([addFollowerToCache, addFolloweeToCache]);
 
-    // followerQueue.addFollowerJob('addFollowerToDb', {
-    //   keyOne: `${req.currentUser!.userId}`,
-    //   keyTwo: `${followerId}`,
-    //   username: req.currentUser!.username,
-    //   followerDocumentId: followerObjectId as Types.ObjectId,
-    // });
+    followerQueue.addFollowerJob('addFollowerToDb', {
+      keyOne: `${req.currentUser!.userId}`,
+      keyTwo: `${followerId}`,
+      username: req.currentUser!.username,
+      followerDocumentId: followerObjectId as Types.ObjectId,
+    });
     res.status(HTTP_STATUS.OK).json({ message: 'Following user now' });
   }
 
