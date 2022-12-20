@@ -1,0 +1,8 @@
+@baseUrl = http://localhost:8000
+@urlPath = api
+
+###
+PUT {{baseUrl}}/{{urlPath}}/user/follow/<followerId>
+Content-Type: application/json
+Accept: application/json
+withCredentials: true

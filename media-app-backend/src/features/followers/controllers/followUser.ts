@@ -36,8 +36,6 @@ class FollowUser {
     const followeeCount = followerCache.updateFollowersCountInCache(`${req.currentUser!.userId}`, 'followingCount', 1);
     await Promise.all([followersCount, followeeCount]);
 
-    const cachedFollowee = await userCache.getUserFromCache(`${req.currentUser!.userId}`);
-
     const followerObjectId = new ObjectId();
     const addFolloweeData = FollowUser.prototype.userData(follower);
     socketIOFollowerObject.emit('add follower', addFolloweeData);
@@ -52,12 +50,12 @@ class FollowUser {
     );
     await Promise.all([addFollowerToCache, addFolloweeToCache]);
 
-    followerQueue.addFollowerJob('addFollowerToDb', {
-      keyOne: `${req.currentUser!.userId}`,
-      keyTwo: `${followerId}`,
-      username: req.currentUser!.username,
-      followerDocumentId: followerObjectId as Types.ObjectId,
-    });
+    // followerQueue.addFollowerJob('addFollowerToDb', {
+    //   keyOne: `${req.currentUser!.userId}`,
+    //   keyTwo: `${followerId}`,
+    //   username: req.currentUser!.username,
+    //   followerDocumentId: followerObjectId as Types.ObjectId,
+    // });
     res.status(HTTP_STATUS.OK).json({ message: 'Following user now' });
   }
 
