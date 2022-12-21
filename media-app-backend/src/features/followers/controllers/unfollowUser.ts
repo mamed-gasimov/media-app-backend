@@ -10,7 +10,7 @@ import { followerService } from '@service/db/follower.sevice';
 
 const followerCache = new FollowerCache();
 
-export class UnfollowUser {
+class UnfollowUser {
   public async follower(req: Request, res: Response) {
     const { followerId } = req.params;
 
