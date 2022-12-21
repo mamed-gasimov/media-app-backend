@@ -1,7 +1,12 @@
 import { Types } from 'mongoose';
 
 import { authUserPayload } from '@root/mocks/auth.mock';
-import { commentNames, commentsData, reactionMockRequest, reactionMockResponse } from '@root/mocks/reactions.mock';
+import {
+  commentNames,
+  commentsData,
+  reactionMockRequest,
+  reactionMockResponse,
+} from '@root/mocks/reactions.mock';
 import { CommentsCache } from '@service/redis/comment.cache';
 import { getComments } from '@comment/controllers/getComments';
 import { commentService } from '@service/db/comment.service';
@@ -52,7 +57,9 @@ describe('Get Post Comments', () => {
       jest.spyOn(CommentsCache.prototype, 'getPostCommentsFromCache').mockResolvedValue([commentsData]);
 
       await getComments.comments(req, res);
-      expect(CommentsCache.prototype.getPostCommentsFromCache).toHaveBeenCalledWith('6027f77087c9d9ccb1555268');
+      expect(CommentsCache.prototype.getPostCommentsFromCache).toHaveBeenCalledWith(
+        '6027f77087c9d9ccb1555268'
+      );
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
         message: 'Post comments',
@@ -112,7 +119,9 @@ describe('Get Post Comments', () => {
       jest.spyOn(CommentsCache.prototype, 'getCommentsNamesFromCache').mockResolvedValue([commentNames]);
 
       await getComments.commentNames(req, res);
-      expect(CommentsCache.prototype.getCommentsNamesFromCache).toHaveBeenCalledWith('6027f77087c9d9ccb1555268');
+      expect(CommentsCache.prototype.getCommentsNamesFromCache).toHaveBeenCalledWith(
+        '6027f77087c9d9ccb1555268'
+      );
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
         message: 'Post comments names',

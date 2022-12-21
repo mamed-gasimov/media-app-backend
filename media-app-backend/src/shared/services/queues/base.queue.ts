@@ -16,7 +16,13 @@ let bullAdapters: BullAdapter[] = [];
 
 export let serverAdapter: ExpressAdapter;
 
-export type IBaseJobData = IAuthJob | IEmailJob | IPostJobData | IReactionJob | ICommentJob | IFollowerJobData;
+export type IBaseJobData =
+  | IAuthJob
+  | IEmailJob
+  | IPostJobData
+  | IReactionJob
+  | ICommentJob
+  | IFollowerJobData;
 
 export abstract class BaseQueue {
   queue: Queue.Queue;
@@ -53,7 +59,11 @@ export abstract class BaseQueue {
     this.queue.add(name, data, { attempts: 3, backoff: { type: 'fixed', delay: 5000 } });
   }
 
-  protected processJob(name: string, concurrency: number, callback: Queue.ProcessPromiseFunction<IBaseJobData>) {
+  protected processJob(
+    name: string,
+    concurrency: number,
+    callback: Queue.ProcessPromiseFunction<IBaseJobData>
+  ) {
     this.queue.process(name, concurrency, callback);
   }
 }

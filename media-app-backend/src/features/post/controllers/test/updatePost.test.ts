@@ -103,7 +103,9 @@ describe('Update Post', () => {
       jest.spyOn(postService, 'findPostById').mockImplementation((): any => Promise.resolve(postMockData));
       jest
         .spyOn(cloudinaryUploads, 'uploads')
-        .mockImplementation((): any => Promise.resolve({ version: '', public_id: '', message: 'Upload error' }));
+        .mockImplementation((): any =>
+          Promise.resolve({ version: '', public_id: '', message: 'Upload error' })
+        );
 
       updatePost.post(req, res).catch((error: CustomError) => {
         expect(error.statusCode).toEqual(400);

@@ -26,7 +26,9 @@ describe('Add reaction to post', () => {
     const res = reactionMockResponse();
     addReactions.reactions(req, res).catch((error: CustomError) => {
       expect(error.statusCode).toEqual(400);
-      expect(error.serializeErrors().message).toEqual('"type" must be one of [like, love, happy, wow, sad, angry]');
+      expect(error.serializeErrors().message).toEqual(
+        '"type" must be one of [like, love, happy, wow, sad, angry]'
+      );
     });
   });
 
@@ -35,12 +37,18 @@ describe('Add reaction to post', () => {
     const res = reactionMockResponse();
     addReactions.reactions(req, res).catch((error: CustomError) => {
       expect(error.statusCode).toEqual(400);
-      expect(error.serializeErrors().message).toEqual('"type" must be one of [like, love, happy, wow, sad, angry]');
+      expect(error.serializeErrors().message).toEqual(
+        '"type" must be one of [like, love, happy, wow, sad, angry]'
+      );
     });
   });
 
   it('should throw an error if previousReaction is not one of [like, love, happy, wow, sad, angry, null, ]', async () => {
-    const req = reactionMockRequest({}, { ...reactionMock, previousReaction: 'random word' }, authUserPayload);
+    const req = reactionMockRequest(
+      {},
+      { ...reactionMock, previousReaction: 'random word' },
+      authUserPayload
+    );
     const res = reactionMockResponse();
     addReactions.reactions(req, res).catch((error: CustomError) => {
       expect(error.statusCode).toEqual(400);

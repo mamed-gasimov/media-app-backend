@@ -7,7 +7,11 @@ import { reactionWorker } from '@worker/reaction.worker';
 class ReactionQueue extends BaseQueue {
   constructor() {
     super('reactions');
-    this.processJob('addReactionDataToDb', 5, reactionWorker.saveReactionToDb as ProcessPromiseFunction<IBaseJobData>);
+    this.processJob(
+      'addReactionDataToDb',
+      5,
+      reactionWorker.saveReactionToDb as ProcessPromiseFunction<IBaseJobData>
+    );
     this.processJob(
       'removeReactionDataFromDb',
       5,

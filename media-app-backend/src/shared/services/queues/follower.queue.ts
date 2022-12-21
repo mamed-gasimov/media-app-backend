@@ -7,7 +7,11 @@ import { followerWorker } from '@worker/follower.worker';
 class FollowerQueue extends BaseQueue {
   constructor() {
     super('followers');
-    this.processJob('addFollowerToDb', 5, followerWorker.addFollowerToDb as ProcessPromiseFunction<IBaseJobData>);
+    this.processJob(
+      'addFollowerToDb',
+      5,
+      followerWorker.addFollowerToDb as ProcessPromiseFunction<IBaseJobData>
+    );
     this.processJob(
       'removeFollowerFromDb',
       5,

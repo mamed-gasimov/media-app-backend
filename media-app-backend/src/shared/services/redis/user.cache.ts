@@ -112,7 +112,9 @@ export class UserCache extends BaseCache {
       response.postsCount = Helpers.parseJson(`${response.postsCount}`) as unknown as number;
       response.blocked = Helpers.parseJson(`${response.blocked}`) as unknown as mongoose.Types.ObjectId[];
       response.blockedBy = Helpers.parseJson(`${response.blockedBy}`) as unknown as mongoose.Types.ObjectId[];
-      response.notifications = Helpers.parseJson(`${response.notifications}`) as unknown as INotificationSettings;
+      response.notifications = Helpers.parseJson(
+        `${response.notifications}`
+      ) as unknown as INotificationSettings;
       response.social = Helpers.parseJson(`${response.social}`) as unknown as ISocialLinks;
       response.followersCount = Helpers.parseJson(`${response.followersCount}`) as unknown as number;
       response.followingCount = Helpers.parseJson(`${response.followingCount}`) as unknown as number;

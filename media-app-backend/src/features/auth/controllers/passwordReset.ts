@@ -23,12 +23,20 @@ class PasswordReset {
     }
 
     const randomCharacters = Helpers.generateRandomCharacters(20);
-    await authService.updatePasswordToken(`${existingUser._id}`, randomCharacters, Date.now() * 5 * 60 * 1000);
+    await authService.updatePasswordToken(
+      `${existingUser._id}`,
+      randomCharacters,
+      Date.now() * 5 * 60 * 1000
+    );
 
     const resetLink = `${config.CLIENT_URL}/reset-password?token=${randomCharacters}`;
     const template = forgotPasswordTemplate.passwordResetTemplate(existingUser.username, resetLink);
 
-    emailQueue.addEmailJob('forgotPasswordEmail', { template, receiverEmail: email, subject: 'Reset your password' });
+    emailQueue.addEmailJob('forgotPasswordEmail', {
+      template,
+      receiverEmail: email,
+      subject: 'Reset your password',
+    });
     res.status(HTTP_STATUS.OK).json({ message: 'Reset password email is sent.' });
   }
 

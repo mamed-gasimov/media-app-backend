@@ -35,7 +35,10 @@ class GetComments {
     const cachedCommentsNames = await commentsCache.getCommentsNamesFromCache(postId);
     const commentsNames = cachedCommentsNames.length
       ? cachedCommentsNames
-      : await commentService.getPostCommentNamesFromDb({ postId: new Types.ObjectId(postId) }, { createdAt: -1 });
+      : await commentService.getPostCommentNamesFromDb(
+          { postId: new Types.ObjectId(postId) },
+          { createdAt: -1 }
+        );
 
     res
       .status(HTTP_STATUS.OK)
@@ -54,7 +57,9 @@ class GetComments {
       ? cachedComments
       : await commentService.getPostCommentsFromDb({ _id: new Types.ObjectId(commentId) }, { createdAt: -1 });
 
-    res.status(HTTP_STATUS.OK).json({ message: 'Single comment', comments: comments.length ? comments[0] : [] });
+    res
+      .status(HTTP_STATUS.OK)
+      .json({ message: 'Single comment', comments: comments.length ? comments[0] : [] });
   }
 }
 

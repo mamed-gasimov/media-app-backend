@@ -52,7 +52,11 @@ describe('Remove reaction from post', () => {
   });
 
   it('should throw an error if previousReaction is not one of [like, love, happy, wow, sad, angry]', async () => {
-    const req = reactionMockRequest({}, { ...removeReactionMock, previousReaction: 'random word' }, authUserPayload);
+    const req = reactionMockRequest(
+      {},
+      { ...removeReactionMock, previousReaction: 'random word' },
+      authUserPayload
+    );
     const res = reactionMockResponse();
     removeReactions.reactions(req, res).catch((error: CustomError) => {
       expect(error.statusCode).toEqual(400);

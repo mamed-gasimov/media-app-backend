@@ -45,7 +45,11 @@ class UnfollowUser {
     );
 
     const followersCount = followerCache.updateFollowersCountInCache(`${followerId}`, 'followersCount', -1);
-    const followeeCount = followerCache.updateFollowersCountInCache(`${req.currentUser!.userId}`, 'followingCount', -1);
+    const followeeCount = followerCache.updateFollowersCountInCache(
+      `${req.currentUser!.userId}`,
+      'followingCount',
+      -1
+    );
     await Promise.all([removeFollowerFromCache, removeFolloweeFromCache, followersCount, followeeCount]);
 
     followerQueue.addFollowerJob('removeFollowerFromDb', {

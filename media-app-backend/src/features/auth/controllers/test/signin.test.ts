@@ -77,7 +77,9 @@ describe('SignIn', () => {
     jest.spyOn(authService, 'getAuthUserByUsername').mockResolvedValueOnce(null);
 
     signIn.read(req, res).catch((error: CustomError) => {
-      expect(authService.getAuthUserByUsername).toHaveBeenCalledWith(Helpers.firstLetterUpperCase(req.body.username));
+      expect(authService.getAuthUserByUsername).toHaveBeenCalledWith(
+        Helpers.firstLetterUpperCase(req.body.username)
+      );
       expect(error.statusCode).toEqual(400);
       expect(error.serializeErrors().message).toEqual('Invalid credentials!');
     });

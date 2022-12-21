@@ -41,7 +41,11 @@ export class FollowerCache extends BaseCache {
     }
   }
 
-  public async updateFollowersCountInCache(userId: string, prop: 'followersCount' | 'followingCount', value: 1 | -1) {
+  public async updateFollowersCountInCache(
+    userId: string,
+    prop: 'followersCount' | 'followingCount',
+    value: 1 | -1
+  ) {
     try {
       if (!this.client.isOpen) {
         await this.client.connect();
