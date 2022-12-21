@@ -1,0 +1,14 @@
+@baseUrl = http://localhost:8000
+@urlPath = api
+
+###
+PUT {{baseUrl}}/{{urlPath}}/user/block/<userId>
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+###
+PUT {{baseUrl}}/{{urlPath}}/user/unblock/<userId>
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
