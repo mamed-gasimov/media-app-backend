@@ -12,7 +12,7 @@ import { IUserDocument } from '@user/interfaces/user.interface';
 import { IFollowerData, IFollowerDocument } from '@follower/interfaces/follower.interface';
 import { socketIOFollowerObject } from '@socket/follower.sockets';
 import { followerQueue } from '@service/queues/follower.queue';
-import { followerService } from '@service/db/follower.sevice';
+import { followerService } from '@service/db/follower.service';
 
 const followerCache = new FollowerCache();
 const userCache = new UserCache();

@@ -7,7 +7,7 @@ import { Helpers } from '@global/helpers/helpers';
 import { BadRequestError } from '@global/helpers/errorHandler';
 import { FollowerCache } from '@service/redis/follower.cache';
 import { IFollowerData, IFollowerDocument } from '@follower/interfaces/follower.interface';
-import { followerService } from '@service/db/follower.sevice';
+import { followerService } from '@service/db/follower.service';
 import { followerQueue } from '@service/queues/follower.queue';
 import { UserCache } from '@service/redis/user.cache';
 import { userService } from '@service/db/user.service';

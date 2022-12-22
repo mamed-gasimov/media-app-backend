@@ -6,7 +6,7 @@ import { followerQueue } from '@service/queues/follower.queue';
 import { Helpers } from '@global/helpers/helpers';
 import { BadRequestError } from '@global/helpers/errorHandler';
 import { IFollowerData, IFollowerDocument } from '@follower/interfaces/follower.interface';
-import { followerService } from '@service/db/follower.sevice';
+import { followerService } from '@service/db/follower.service';
 
 const followerCache = new FollowerCache();
 

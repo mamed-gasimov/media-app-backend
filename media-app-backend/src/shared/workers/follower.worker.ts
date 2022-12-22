@@ -1,7 +1,7 @@
 import { DoneCallback, Job } from 'bull';
 
 import { config } from '@root/config';
-import { followerService } from '@service/db/follower.sevice';
+import { followerService } from '@service/db/follower.service';
 import { IFollowerJobData } from '@follower/interfaces/follower.interface';
 
 const log = config.createLogger('followerWorker');

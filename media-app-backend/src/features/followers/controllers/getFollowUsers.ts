@@ -3,7 +3,7 @@ import { Types } from 'mongoose';
 import HTTP_STATUS from 'http-status-codes';
 
 import { FollowerCache } from '@service/redis/follower.cache';
-import { followerService } from '@service/db/follower.sevice';
+import { followerService } from '@service/db/follower.service';
 import { Helpers } from '@global/helpers/helpers';
 import { BadRequestError } from '@global/helpers/errorHandler';
 import { UserCache } from '@service/redis/user.cache';
