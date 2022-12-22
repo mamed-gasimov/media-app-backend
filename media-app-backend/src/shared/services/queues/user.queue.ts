@@ -1,6 +1,6 @@
 import { ProcessPromiseFunction } from 'bull';
 
-import { userWorker } from '@root/shared/workers/user.worker';
+import { userWorker } from '@worker/user.worker';
 import { BaseQueue, IBaseJobData } from '@service/queues/base.queue';
 
 class UserQueue extends BaseQueue {

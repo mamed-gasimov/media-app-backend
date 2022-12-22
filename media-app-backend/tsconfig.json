@@ -32,10 +32,12 @@
       "@post/*": ["src/features/post/*"],
       "@reaction/*": ["src/features/reactions/*"],
       "@comment/*": ["src/features/comments/*"],
+      "@follower/*": ["src/features/followers/*"],
+      "@blocked/*": ["src/features/blocked/*"],
       "@global/*": ["src/shared/globals/*"],
       "@service/*": ["src/shared/services/*"],
       "@socket/*": ["src/shared/sockets/*"],
-      "@worker/*": ["src/shared/worker/*"],
+      "@worker/*": ["src/shared/workers/*"],
       "@root/*": ["src/*"]
     }
   }

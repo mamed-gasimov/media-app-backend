@@ -1,7 +1,7 @@
 import { ProcessPromiseFunction } from 'bull';
 
 import { IAuthJob } from '@auth/interfaces/auth.interface';
-import { authWorker } from '@root/shared/workers/auth.worker';
+import { authWorker } from '@worker/auth.worker';
 import { BaseQueue, IBaseJobData } from '@service/queues/base.queue';
 
 class AuthQueue extends BaseQueue {

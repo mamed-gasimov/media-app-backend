@@ -36,7 +36,11 @@ describe('CurrentUser', () => {
     });
 
     it('should set session token and send correct json response', async () => {
-      const req = authMockRequest({ jwt: '12djdj34' }, { username: USERNAME, password: PASSWORD }, authUserPayload);
+      const req = authMockRequest(
+        { jwt: '12djdj34' },
+        { username: USERNAME, password: PASSWORD },
+        authUserPayload
+      );
       const res = authMockResponse();
       jest.spyOn(UserCache.prototype, 'getUserFromCache').mockResolvedValue(existingUser);
 

@@ -13,6 +13,11 @@ class SignIn {
   @joiValidation(loginSchema)
   public async read(req: Request, res: Response) {
     const { username, password } = req.body;
+
+    if (req.session?.jwt) {
+      throw new BadRequestError('You need to sign out first.');
+    }
+
     const existingUser = await authService.getAuthUserByUsername(username);
     if (!existingUser) {
       throw new BadRequestError('Invalid credentials!');

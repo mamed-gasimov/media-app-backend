@@ -9,7 +9,13 @@ import { BaseCache } from '@service/redis/base.cache';
 
 const log = config.createLogger('postCache');
 
-export type PostCacheMultiType = string | number | Buffer | RedisCommandRawReply[] | IPostDocument | IPostDocument[];
+export type PostCacheMultiType =
+  | string
+  | number
+  | Buffer
+  | RedisCommandRawReply[]
+  | IPostDocument
+  | IPostDocument[];
 
 export class PostCache extends BaseCache {
   constructor() {
@@ -210,8 +216,18 @@ export class PostCache extends BaseCache {
         await this.client.connect();
       }
 
-      const { post, bgColor, imgId, imgVersion, videoId, videoVersion, feelings, gifUrl, privacy, profilePicture } =
-        updatedPost;
+      const {
+        post,
+        bgColor,
+        imgId,
+        imgVersion,
+        videoId,
+        videoVersion,
+        feelings,
+        gifUrl,
+        privacy,
+        profilePicture,
+      } = updatedPost;
       const dataToSave = [
         'post',
         `${post}`,

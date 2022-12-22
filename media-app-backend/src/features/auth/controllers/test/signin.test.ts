@@ -61,13 +61,25 @@ describe('SignIn', () => {
     getTestData({ username: USERNAME, password: LONG_PASSWORD }, 'Invalid password');
   });
 
+  it('should throw an error if request session jwt token already exist', () => {
+    const req = authMockRequest({ jwt: '12345' }, { username: USERNAME, password: PASSWORD });
+    const res = authMockResponse();
+
+    signIn.read(req, res).catch((error: CustomError) => {
+      expect(error.statusCode).toEqual(400);
+      expect(error.serializeErrors().message).toEqual('You need to sign out first.');
+    });
+  });
+
   it('should throw an error if username does not exist', () => {
     const req = authMockRequest({}, { username: USERNAME, password: PASSWORD });
     const res = authMockResponse();
     jest.spyOn(authService, 'getAuthUserByUsername').mockResolvedValueOnce(null);
 
     signIn.read(req, res).catch((error: CustomError) => {
-      expect(authService.getAuthUserByUsername).toHaveBeenCalledWith(Helpers.firstLetterUpperCase(req.body.username));
+      expect(authService.getAuthUserByUsername).toHaveBeenCalledWith(
+        Helpers.firstLetterUpperCase(req.body.username)
+      );
       expect(error.statusCode).toEqual(400);
       expect(error.serializeErrors().message).toEqual('Invalid credentials!');
     });

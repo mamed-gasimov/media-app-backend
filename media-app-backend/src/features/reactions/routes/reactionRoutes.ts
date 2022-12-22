@@ -21,7 +21,11 @@ class ReactionRoutes {
       authMiddleware.checkAuthentication,
       getReactions.singleReactionByUsername
     );
-    this.router.post('/post/reactions/user', authMiddleware.checkAuthentication, getReactions.reactionsByUsername);
+    this.router.post(
+      '/post/reactions/user',
+      authMiddleware.checkAuthentication,
+      getReactions.reactionsByUsername
+    );
 
     return this.router;
   }

@@ -8,7 +8,10 @@ const addReactionSchema = Joi.object().keys({
     'any.required': 'Reaction type is a required property',
   }),
   profilePicture: Joi.string().optional().allow(null, ''),
-  previousReaction: Joi.string().valid('like', 'love', 'happy', 'wow', 'sad', 'angry').optional().allow(null, ''),
+  previousReaction: Joi.string()
+    .valid('like', 'love', 'happy', 'wow', 'sad', 'angry')
+    .optional()
+    .allow(null, ''),
 });
 
 const removeReactionSchema = Joi.object().keys({

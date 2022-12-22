@@ -2,12 +2,16 @@ import { ProcessPromiseFunction } from 'bull';
 
 import { BaseQueue, IBaseJobData } from '@service/queues/base.queue';
 import { IReactionJob } from '@reaction/interfaces/reaction.interface';
-import { reactionWorker } from '@root/shared/workers/reaction.worker';
+import { reactionWorker } from '@worker/reaction.worker';
 
 class ReactionQueue extends BaseQueue {
   constructor() {
     super('reactions');
-    this.processJob('addReactionDataToDb', 5, reactionWorker.saveReactionToDb as ProcessPromiseFunction<IBaseJobData>);
+    this.processJob(
+      'addReactionDataToDb',
+      5,
+      reactionWorker.saveReactionToDb as ProcessPromiseFunction<IBaseJobData>
+    );
     this.processJob(
       'removeReactionDataFromDb',
       5,

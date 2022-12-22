@@ -21,7 +21,9 @@ class ReactionService {
 
     const updatedReaction = (await Promise.all([
       userCache.getUserFromCache(`${userTo}`),
-      ReactionModel.replaceOne({ postId, type: previousReaction, username }, updatedReactionObject, { upsert: true }),
+      ReactionModel.replaceOne({ postId, type: previousReaction, username }, updatedReactionObject, {
+        upsert: true,
+      }),
       PostModel.findOneAndUpdate(
         { _id: postId },
         {
@@ -52,7 +54,10 @@ class ReactionService {
   }
 
   public async getPostReactions(query: IQueryReaction, sort: Record<string, 1 | -1>) {
-    const reactions: IReactionDocument[] = await ReactionModel.aggregate([{ $match: query }, { $sort: sort }]);
+    const reactions: IReactionDocument[] = await ReactionModel.aggregate([
+      { $match: query },
+      { $sort: sort },
+    ]);
     return reactions;
   }
 

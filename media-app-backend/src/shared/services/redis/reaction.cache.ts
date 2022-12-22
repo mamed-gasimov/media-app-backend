@@ -65,7 +65,8 @@ export class ReactionsCache extends BaseCache {
 
         const changedPostPeactions = {
           ...postReactions,
-          [previousReaction]: postReactions[previousReaction] - 1 >= 0 ? postReactions[previousReaction] - 1 : 0,
+          [previousReaction]:
+            postReactions[previousReaction] - 1 >= 0 ? postReactions[previousReaction] - 1 : 0,
         };
 
         const dataToSave = ['reactions', JSON.stringify(changedPostPeactions)];
@@ -92,7 +93,10 @@ export class ReactionsCache extends BaseCache {
     }
   }
 
-  public async getSingleReactionFromCache(postId: string, username: string): Promise<IReactionDocument | undefined> {
+  public async getSingleReactionFromCache(
+    postId: string,
+    username: string
+  ): Promise<IReactionDocument | undefined> {
     try {
       if (!this.client.isOpen) {
         await this.client.connect();
