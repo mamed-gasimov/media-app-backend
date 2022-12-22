@@ -27,7 +27,7 @@ export class BlockedUsersCache extends BaseCache {
       const multi = this.client.multi();
       let blocked = Helpers.parseJson(response) as string[];
       if (type === 'block') {
-        blocked = [...blocked, userId];
+        blocked = [...new Set([...blocked, userId])];
       } else if (type === 'unblock') {
         remove(blocked, (id: string) => id === userId);
         blocked = [...blocked];

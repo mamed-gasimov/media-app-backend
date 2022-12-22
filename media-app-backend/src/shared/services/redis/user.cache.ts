@@ -108,16 +108,20 @@ export class UserCache extends BaseCache {
       }
 
       const response = (await this.client.HGETALL(`users:${key}`)) as unknown as IUserDocument;
-      response.createdAt = new Date(Helpers.parseJson(`${response.createdAt}`) as unknown as Date);
-      response.postsCount = Helpers.parseJson(`${response.postsCount}`) as unknown as number;
-      response.blocked = Helpers.parseJson(`${response.blocked}`) as unknown as mongoose.Types.ObjectId[];
-      response.blockedBy = Helpers.parseJson(`${response.blockedBy}`) as unknown as mongoose.Types.ObjectId[];
+      response.createdAt = new Date(Helpers.parseJson(`${response.createdAt || ''}`) as unknown as Date);
+      response.postsCount = Helpers.parseJson(`${response.postsCount || 0}`) as unknown as number;
+      response.blocked = Helpers.parseJson(
+        `${response.blocked || []}`
+      ) as unknown as mongoose.Types.ObjectId[];
+      response.blockedBy = Helpers.parseJson(
+        `${response.blockedBy || []}`
+      ) as unknown as mongoose.Types.ObjectId[];
       response.notifications = Helpers.parseJson(
-        `${response.notifications}`
+        `${response.notifications || ''}`
       ) as unknown as INotificationSettings;
-      response.social = Helpers.parseJson(`${response.social}`) as unknown as ISocialLinks;
-      response.followersCount = Helpers.parseJson(`${response.followersCount}`) as unknown as number;
-      response.followingCount = Helpers.parseJson(`${response.followingCount}`) as unknown as number;
+      response.social = Helpers.parseJson(`${response.social || ''}`) as unknown as ISocialLinks;
+      response.followersCount = Helpers.parseJson(`${response.followersCount || 0}`) as unknown as number;
+      response.followingCount = Helpers.parseJson(`${response.followingCount || 0}`) as unknown as number;
 
       return response;
     } catch (error) {
