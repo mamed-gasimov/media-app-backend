@@ -6,7 +6,7 @@ import { AuthPayload, IAuthDocument } from '@auth/interfaces/auth.interface';
 
 export const authMockRequest = (
   sessionData: IJWT,
-  body: IAuthMock,
+  body?: IAuthMock,
   currentUser?: AuthPayload | null,
   params?: any
 ) =>
