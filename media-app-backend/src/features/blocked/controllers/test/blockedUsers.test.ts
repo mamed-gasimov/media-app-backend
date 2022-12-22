@@ -48,6 +48,20 @@ describe('BlockedUsers', () => {
       });
     });
 
+    it('should throw an error if userId is equal to current userId', async () => {
+      const req = followersMockRequest({}, authUserPayload, {
+        userId: '6064861bc25eaa5a5d2f9bf4',
+      });
+      const res = followersMockResponse();
+
+      req.params.userId = req.currentUser!.userId;
+
+      blockedUsers.block(req, res).catch((error: CustomError) => {
+        expect(error.statusCode).toEqual(400);
+        expect(error.serializeErrors().message).toEqual('Invalid request.');
+      });
+    });
+
     it('should throw an error if user was not found', async () => {
       const req = followersMockRequest({}, authUserPayload, {
         userId: '6064861bc25eaa5a5d2f9bf4',
@@ -119,37 +133,103 @@ describe('BlockedUsers', () => {
     });
   });
 
-  // describe('unblock', () => {
-  //   it('should send correct json response', async () => {
-  //     const req = followersMockRequest({}, authUserPayload, {
-  //       userId: '6064861bc25eaa5a5d2f9bf4',
-  //     });
-  //     const res = followersMockResponse();
-  //     jest.spyOn(BlockedUsersCache.prototype, 'updateBlockedUserPropInCache');
-  //     jest.spyOn(blockedUsersQueue, 'addBlockedUsersJob');
+  describe('unblock', () => {
+    it('should throw an error if userId is not available', async () => {
+      const req = followersMockRequest({}, authUserPayload, {
+        userId: '',
+      });
+      const res = followersMockResponse();
+      blockedUsers.block(req, res).catch((error: CustomError) => {
+        expect(error.statusCode).toEqual(400);
+        expect(error.serializeErrors().message).toEqual('Invalid request.');
+      });
+    });
 
-  //     await blockedUsers.unblock(req, res);
-  //     expect(BlockedUsersCache.prototype.updateBlockedUserPropInCache).toHaveBeenCalledWith(
-  //       '6064861bc25eaa5a5d2f9bf4',
-  //       'blockedBy',
-  //       `${req.currentUser?.userId}`,
-  //       'unblock'
-  //     );
-  //     expect(BlockedUsersCache.prototype.updateBlockedUserPropInCache).toHaveBeenCalledWith(
-  //       `${req.currentUser?.userId}`,
-  //       'blocked',
-  //       '6064861bc25eaa5a5d2f9bf4',
-  //       'unblock'
-  //     );
-  //     expect(blockedUsersQueue.addBlockedUsersJob).toHaveBeenCalledWith('removeBlockedUserFromDb', {
-  //       keyOne: `${req.currentUser?.userId}`,
-  //       keyTwo: '6064861bc25eaa5a5d2f9bf4',
-  //       type: 'unblock',
-  //     });
-  //     expect(res.status).toHaveBeenCalledWith(200);
-  //     expect(res.json).toHaveBeenCalledWith({
-  //       message: 'User unblocked',
-  //     });
-  //   });
-  // });
+    it('should throw an error if userId is not valid mongodb ObjectId', async () => {
+      const req = followersMockRequest({}, authUserPayload, {
+        userId: '12345',
+      });
+      const res = followersMockResponse();
+      blockedUsers.block(req, res).catch((error: CustomError) => {
+        expect(error.statusCode).toEqual(400);
+        expect(error.serializeErrors().message).toEqual('Invalid request.');
+      });
+    });
+
+    it('should throw an error if userId is equal to current userId', async () => {
+      const req = followersMockRequest({}, authUserPayload, {
+        userId: '6064861bc25eaa5a5d2f9bf4',
+      });
+      const res = followersMockResponse();
+
+      req.params.userId = req.currentUser!.userId;
+
+      blockedUsers.block(req, res).catch((error: CustomError) => {
+        expect(error.statusCode).toEqual(400);
+        expect(error.serializeErrors().message).toEqual('Invalid request.');
+      });
+    });
+
+    it('should throw an error if user was not found', async () => {
+      const req = followersMockRequest({}, authUserPayload, {
+        userId: '6064861bc25eaa5a5d2f9bf4',
+      });
+      const res = followersMockResponse();
+
+      jest.spyOn(UserCache.prototype, 'getUserFromCache').mockImplementation((): any =>
+        Promise.resolve({
+          social: '',
+          notifications: '',
+        })
+      );
+
+      jest.spyOn(userService, 'findUserById').mockImplementation((): any => Promise.resolve(null));
+
+      blockedUsers.block(req, res).catch((error: CustomError) => {
+        expect(error.statusCode).toEqual(400);
+        expect(error.serializeErrors().message).toEqual('User was not found.');
+      });
+    });
+
+    it('should send correct json response', async () => {
+      const req = followersMockRequest({}, authUserPayload, {
+        userId: '6064861bc25eaa5a5d2f9bf4',
+      });
+      const res = followersMockResponse();
+
+      jest.spyOn(UserCache.prototype, 'getUserFromCache').mockImplementation((): any =>
+        Promise.resolve({
+          social: {},
+          notifications: {},
+          blockedBy: [req.currentUser!.userId],
+        })
+      );
+      jest.spyOn(BlockedUsersCache.prototype, 'updateBlockedUserPropInCache');
+      jest.spyOn(blockedUsersQueue, 'addBlockedUsersJob');
+
+      await blockedUsers.unblock(req, res);
+      expect(BlockedUsersCache.prototype.updateBlockedUserPropInCache).toHaveBeenCalledWith(
+        '6064861bc25eaa5a5d2f9bf4',
+        'blockedBy',
+        `${req.currentUser?.userId}`,
+        'unblock'
+      );
+      expect(BlockedUsersCache.prototype.updateBlockedUserPropInCache).toHaveBeenCalledWith(
+        `${req.currentUser?.userId}`,
+        'blocked',
+        '6064861bc25eaa5a5d2f9bf4',
+        'unblock'
+      );
+      expect(blockedUsersQueue.addBlockedUsersJob).toHaveBeenCalledWith('removeBlockedUserFromDb', {
+        keyOne: `${req.currentUser?.userId}`,
+        keyTwo: '6064861bc25eaa5a5d2f9bf4',
+        type: 'unblock',
+      });
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'User unblocked',
+      });
+    });
+  });
 });

@@ -66,6 +66,19 @@ class BlockedUsers {
       throw new BadRequestError('Invalid request.');
     }
 
+    let existingUser = await userCache.getUserFromCache(userId);
+    if (!existingUser || (!existingUser.social && !existingUser.notifications)) {
+      existingUser = (await userService.findUserById(userId)) as IUserDocument;
+      if (!existingUser) {
+        throw new BadRequestError('User was not found.');
+      }
+    }
+
+    const alreadyBlocked = existingUser?.blockedBy?.find((id) => String(id) === req.currentUser!.userId);
+    if (!alreadyBlocked) {
+      throw new BadRequestError('Already not blocked.');
+    }
+
     await BlockedUsers.prototype.updateBlockedUser(userId, req.currentUser!.userId, 'unblock');
     blockedUsersQueue.addBlockedUsersJob('removeBlockedUserFromDb', {
       keyOne: `${req.currentUser!.userId}`,
