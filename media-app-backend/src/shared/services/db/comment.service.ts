@@ -7,10 +7,16 @@ import {
   IQueryComment,
 } from '@comment/interfaces/comments.interface';
 import { CommentsModel } from '@comment/models/comments.model';
-import { INotificationDocument } from '@notification/interfaces/notification.interface';
+import {
+  INotificationDocument,
+  INotificationTemplate,
+} from '@notification/interfaces/notification.interface';
 import { NotificationModel } from '@notification/models/notification.model';
 import { PostModel } from '@post/models/post.model';
 import { UserCache } from '@service/redis/user.cache';
+import { socketIONotificationObject } from '@socket/notification.sockets';
+import { notificationTemplate } from '@service/emails/templates/notifications/notificationTemplate';
+import { emailQueue } from '@service/queues/email.queue';
 
 const userCache = new UserCache();
 
@@ -42,6 +48,19 @@ class CommentService {
         imgVersion: response[1]?.imgVersion || '',
         gifUrl: response[1]?.gifUrl || '',
         reaction: '',
+      });
+
+      socketIONotificationObject.emit('insert notification', notifications, { userTo });
+      const templateParams: INotificationTemplate = {
+        username: response[2].username!,
+        message: `${username} commented on your post.`,
+        header: 'Comment Notification',
+      };
+      const template = notificationTemplate.notificationMessageTemplate(templateParams);
+      emailQueue.addEmailJob('commentsEmail', {
+        receiverEmail: response[2].email!,
+        template,
+        subject: 'Post notification',
       });
     }
   }
