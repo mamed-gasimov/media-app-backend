@@ -1,7 +1,7 @@
 import { model, Schema, Types } from 'mongoose';
 
 import { INotificationDocument, INotification } from '@notification/interfaces/notification.interface';
-// import { notificationService } from '@service/db/notification.service';
+import { notificationService } from '@service/db/notification.service';
 
 const notificationSchema = new Schema({
   userTo: { type: Schema.Types.ObjectId, ref: 'User', index: true },
@@ -25,8 +25,8 @@ notificationSchema.methods.insertNotification = async function (data: INotificat
 
   await NotificationModel.create({ ...data });
   try {
-    // const notifications: INotificationDocument[] = await notificationService.getNotifications(userTo);
-    // return notifications;
+    const notifications = await notificationService.getNotifications(userTo);
+    return notifications;
   } catch (error) {
     return error;
   }
