@@ -12,6 +12,11 @@ class EmailQueue extends BaseQueue {
       5,
       emailWorker.addNotificationEmail as ProcessPromiseFunction<IBaseJobData>
     );
+    this.processJob(
+      'commentsEmail',
+      5,
+      emailWorker.addNotificationEmail as ProcessPromiseFunction<IBaseJobData>
+    );
   }
 
   public addEmailJob(name: string, data: IEmailJob) {
