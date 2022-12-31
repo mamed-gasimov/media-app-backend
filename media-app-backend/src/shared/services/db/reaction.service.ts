@@ -8,6 +8,11 @@ import { PostModel } from '@post/models/post.model';
 import { IUserDocument } from '@user/interfaces/user.interface';
 import { IPostDocument } from '@post/interfaces/post.interface';
 import { Helpers } from '@global/helpers/helpers';
+import { NotificationModel } from '@notification/models/notification.model';
+import { socketIONotificationObject } from '@socket/notification.sockets';
+import { INotificationTemplate } from '@notification/interfaces/notification.interface';
+import { notificationTemplate } from '@service/emails/templates/notifications/notificationTemplate';
+import { emailQueue } from '@service/queues/email.queue';
 
 const userCache = new UserCache();
 
@@ -35,6 +40,39 @@ class ReactionService {
         { new: true }
       ),
     ])) as unknown as [IUserDocument, IReactionDocument, IPostDocument];
+
+    if (updatedReaction[0].notifications.reactions && userTo !== userFrom) {
+      const notificationModel = new NotificationModel();
+      const notifications = await notificationModel.insertNotification({
+        userFrom: userFrom as string,
+        userTo: userTo as string,
+        message: `${username} reacted to your post.`,
+        notificationType: 'reactions',
+        entityId: new Types.ObjectId(postId),
+        createdItemId: new Types.ObjectId(updatedReaction[1]._id!),
+        createdAt: new Date(),
+        comment: '',
+        post: updatedReaction[2].post,
+        imgId: updatedReaction[2].imgId!,
+        imgVersion: updatedReaction[2].imgVersion!,
+        gifUrl: updatedReaction[2].gifUrl!,
+        reaction: type!,
+      });
+
+      socketIONotificationObject.emit('insert notification', notifications, { userTo });
+      const templateParams: INotificationTemplate = {
+        username: updatedReaction[0].username!,
+        message: `${username} reacted to your post.`,
+        header: 'Post Reaction Notification',
+      };
+
+      const template = notificationTemplate.notificationMessageTemplate(templateParams);
+      emailQueue.addEmailJob('reactionsEmail', {
+        receiverEmail: updatedReaction[0].email!,
+        template,
+        subject: 'Post reaction notification',
+      });
+    }
   }
 
   public async removeReactionDataFromDB(reactionData: IReactionJob): Promise<void> {
