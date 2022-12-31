@@ -34,7 +34,7 @@ class ImageWorker {
   async addImageToDb(job: Job<IFileImageJobData>, done: DoneCallback) {
     try {
       const { key, imgId, imgVersion } = job.data;
-      await imageService.addImage(key!, imgId!, imgVersion!);
+      await imageService.addImage(key!, imgId!, imgVersion!, 'post');
       job.progress(100);
       done(null, job.data);
     } catch (error) {

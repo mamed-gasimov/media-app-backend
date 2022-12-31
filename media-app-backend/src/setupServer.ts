@@ -18,6 +18,7 @@ import { SocketIOPostHandler } from '@socket/post.sockets';
 import { SocketIOFollowerHandler } from '@socket/follower.sockets';
 import { SocketIOUserHandler } from '@socket/user.sockets';
 import { SocketIONotificationHandler } from '@socket/notification.sockets';
+import { SocketIOImageHandler } from '@socket/image.sockets';
 
 const SERVER_PORT = 8000;
 const log = config.createLogger('server');
@@ -29,7 +30,7 @@ export class AppServer {
     this.app = app;
   }
 
-  public start(): void {
+  public start() {
     this.securityMiddleware(this.app);
     this.standardMiddleware(this.app);
     this.routeMiddleware(this.app);
@@ -37,7 +38,7 @@ export class AppServer {
     this.startServer(this.app);
   }
 
-  private securityMiddleware(app: Application): void {
+  private securityMiddleware(app: Application) {
     app.use(
       cookieSession({
         name: 'session',
@@ -58,17 +59,17 @@ export class AppServer {
     );
   }
 
-  private standardMiddleware(app: Application): void {
+  private standardMiddleware(app: Application) {
     app.use(compression());
     app.use(json({ limit: '50mb' }));
     app.use(urlencoded({ extended: true, limit: '50mb' }));
   }
 
-  private routeMiddleware(app: Application): void {
+  private routeMiddleware(app: Application) {
     applicationRoutes(app);
   }
 
-  private globalErrorHandler(app: Application): void {
+  private globalErrorHandler(app: Application) {
     app.all('*', (req: Request, res: Response) => {
       res.status(HTTP_STATUS.NOT_FOUND).json({ message: `${req.originalUrl} is not found!` });
     });
@@ -82,7 +83,7 @@ export class AppServer {
     });
   }
 
-  private async startServer(app: Application): Promise<void> {
+  private async startServer(app: Application) {
     try {
       const httpServer = new http.Server(app);
       const socketIO = await this.createSocketIO(httpServer);
@@ -108,7 +109,7 @@ export class AppServer {
     return io;
   }
 
-  private startHttpServer(httpServer: http.Server): void {
+  private startHttpServer(httpServer: http.Server) {
     log.info(`Server has started with process ${process.pid}.`);
 
     httpServer.listen(SERVER_PORT, () => {
@@ -116,15 +117,17 @@ export class AppServer {
     });
   }
 
-  private socketIOConnections(io: Server): void {
+  private socketIOConnections(io: Server) {
     const socketIOPostHandler = new SocketIOPostHandler(io);
     const socketIOFollowerHandler = new SocketIOFollowerHandler(io);
     const socketIOUserHandler = new SocketIOUserHandler(io);
     const socketIONotificationHandler = new SocketIONotificationHandler();
+    const socketIOImageHandler = new SocketIOImageHandler();
 
     socketIOPostHandler.listen();
     socketIOFollowerHandler.listen();
     socketIOUserHandler.listen();
     socketIONotificationHandler.listen(io);
+    socketIOImageHandler.listen(io);
   }
 }

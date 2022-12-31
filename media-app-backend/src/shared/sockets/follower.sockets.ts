@@ -12,7 +12,7 @@ export class SocketIOFollowerHandler {
     socketIOFollowerObject = io;
   }
 
-  public listen(): void {
+  public listen() {
     this.io.on('connection', (socket: Socket) => {
       socket.on('unfollow user', (data: IFollowers) => {
         this.io.emit('remove follower', data);

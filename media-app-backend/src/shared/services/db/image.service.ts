@@ -18,13 +18,18 @@ class ImageService {
     await this.addImage(userId, imgId, imgVersion, 'background');
   }
 
-  public async addImage(userId: string, imgId: string, imgVersion: string, type?: 'profile' | 'background') {
+  public async addImage(
+    userId: string,
+    imgId: string,
+    imgVersion: string,
+    type: 'profile' | 'background' | 'post'
+  ) {
     await ImageModel.create({
       userId,
       bgImageVersion: type === 'background' ? imgVersion : '',
       bgImageId: type === 'background' ? imgId : '',
-      imgVersion: type === 'profile' ? imgVersion : '',
-      imgId: type === 'profile' ? imgId : '',
+      imgVersion: type === 'profile' || type === 'post' ? imgVersion : '',
+      imgId: type === 'profile' || type === 'post' ? imgId : '',
     });
   }
 
