@@ -18,7 +18,7 @@ class ImageService {
     await this.addImage(userId, imgId, imgVersion, 'background');
   }
 
-  public async addImage(userId: string, imgId: string, imgVersion: string, type: 'profile' | 'background') {
+  public async addImage(userId: string, imgId: string, imgVersion: string, type?: 'profile' | 'background') {
     await ImageModel.create({
       userId,
       bgImageVersion: type === 'background' ? imgVersion : '',
