@@ -11,6 +11,7 @@ import { postSchema } from '@post/schemas/post';
 import { postQueue } from '@service/queues/post.queue';
 import { PostCache } from '@service/redis/post.cache';
 import { socketIOPostObject } from '@socket/post.sockets';
+import { imageQueue } from '@service/queues/image.queue';
 
 const postCache = new PostCache();
 
@@ -61,7 +62,13 @@ class CreatePost {
 
     postQueue.addPostJob('addPostToDb', { key: req.currentUser!.userId, value: createdPost });
 
-    //call image queue to add image to mongodb database
+    if (result?.version && result?.public_id) {
+      imageQueue.addImageJob('addImageToDb', {
+        key: `${req.currentUser!.userId}`,
+        imgId: result.public_id,
+        imgVersion: result.version.toString(),
+      });
+    }
 
     res.status(HTTP_STATUS.CREATED).json({ message: 'Post created successfully' });
   }
