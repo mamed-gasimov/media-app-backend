@@ -9,6 +9,7 @@ import { serverAdapter } from '@service/queues/base.queue';
 import { commentRoutes } from '@comment/routes/commentRoutes';
 import { followerRoutes } from '@follower/routes/followerRoutes';
 import { blockedUsersRoutes } from '@blocked/routes/blockedUsersRoutes';
+import { notificationRoutes } from '@notification/routes/notificationRoutes';
 
 const BASE_PATH = '/api';
 
@@ -24,6 +25,7 @@ const applicationRoutes = (app: Application) => {
     app.use(BASE_PATH, authMiddleware.verifyUser, commentRoutes.routes());
     app.use(BASE_PATH, authMiddleware.verifyUser, followerRoutes.routes());
     app.use(BASE_PATH, authMiddleware.verifyUser, blockedUsersRoutes.routes());
+    app.use(BASE_PATH, authMiddleware.verifyUser, notificationRoutes.routes());
   };
 
   routes();
