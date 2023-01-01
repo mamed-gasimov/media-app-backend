@@ -45,6 +45,11 @@ class ImageService {
     await ImageModel.deleteOne({ _id: imageId }).exec();
   }
 
+  public async getImageId(imageId: string) {
+    const image = (await ImageModel.findOne({ _id: imageId }).exec()) as IFileImageDocument;
+    return image;
+  }
+
   public async getImageByBackgroundId(bgImageId: string) {
     const image = (await ImageModel.findOne({ bgImageId }).exec()) as IFileImageDocument;
     return image;

@@ -24,3 +24,9 @@ withCredentials: true
 {
     "image": ""
 }
+
+###
+DELETE {{baseUrl}}/{{urlPath}}/images/<imageId>
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
