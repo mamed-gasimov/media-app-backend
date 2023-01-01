@@ -140,7 +140,8 @@ export class UserCache extends BaseCache {
       if (!this.client.isOpen) {
         await this.client.connect();
       }
-      const dataToSave = [`${prop}`, JSON.stringify(value)];
+      const val = typeof value === 'string' ? value : JSON.stringify(value);
+      const dataToSave = [`${prop}`, val];
       await this.client.HSET(`users:${userId}`, dataToSave);
       const response = (await this.getUserFromCache(userId)) as IUserDocument;
       return response;

@@ -24,13 +24,21 @@ class ImageService {
     imgVersion: string,
     type: 'profile' | 'background' | 'post'
   ) {
-    await ImageModel.create({
-      userId,
+    const imageInDb = await ImageModel.findOne({
+      imgId: type === 'profile' || type === 'post' ? imgId : '',
+      imgVersion: type === 'profile' || type === 'post' ? imgVersion : '',
       bgImageVersion: type === 'background' ? imgVersion : '',
       bgImageId: type === 'background' ? imgId : '',
-      imgVersion: type === 'profile' || type === 'post' ? imgVersion : '',
-      imgId: type === 'profile' || type === 'post' ? imgId : '',
     });
+    if (!imageInDb) {
+      await ImageModel.create({
+        userId,
+        bgImageVersion: type === 'background' ? imgVersion : '',
+        bgImageId: type === 'background' ? imgId : '',
+        imgVersion: type === 'profile' || type === 'post' ? imgVersion : '',
+        imgId: type === 'profile' || type === 'post' ? imgId : '',
+      });
+    }
   }
 
   public async removeImageFromDb(imageId: string) {

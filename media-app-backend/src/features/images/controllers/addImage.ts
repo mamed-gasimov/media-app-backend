@@ -12,19 +12,24 @@ import { BadRequestError } from '@global/helpers/errorHandler';
 import { socketIOImageObject } from '@socket/image.sockets';
 import { Helpers } from '@global/helpers/helpers';
 import { IBgUploadResponse } from '@image/interfaces/image.interface';
+import { config } from '@root/config';
 
 const userCache = new UserCache();
 
-export class AddImage {
+class AddImage {
   @joiValidation(addImageSchema)
   public async profileImage(req: Request, res: Response) {
-    const result = (await uploads(req.body.image, req.currentUser!.userId, true, true)) as UploadApiResponse;
+    const { image } = req.body;
+    if (!Helpers.isDataBase64(image)) {
+      throw new BadRequestError('Invalid data format.');
+    }
 
+    const result = (await uploads(image, req.currentUser!.userId, true, true)) as UploadApiResponse;
     if (!result?.public_id) {
       throw new BadRequestError('File upload: Error occurred. Try again.');
     }
 
-    const url = `https://res.cloudinary.com/dyamr9ym3/image/upload/v${result.version}/${result.public_id}`;
+    const url = `https://res.cloudinary.com/${config.CLOUD_NAME}/image/upload/v${result.version}/${result.public_id}`;
     const cachedUser = (await userCache.updateSingleUserItemInCache(
       `${req.currentUser!.userId}`,
       'profilePicture',
@@ -32,7 +37,7 @@ export class AddImage {
     )) as IUserDocument;
 
     socketIOImageObject.emit('update user', cachedUser);
-    imageQueue.addImageJob('addUserProfileImageToDB', {
+    imageQueue.addImageJob('addUserProfileImageToDb', {
       key: `${req.currentUser!.userId}`,
       value: url,
       imgId: result.public_id,
@@ -73,11 +78,11 @@ export class AddImage {
   }
 
   private async backgroundUpload(image: string): Promise<IBgUploadResponse> {
-    const isDataURL = Helpers.isDataBase64(image);
+    const isDataBase64 = Helpers.isDataBase64(image);
     let version = '';
     let publicId = '';
 
-    if (isDataURL) {
+    if (isDataBase64) {
       const result = (await uploads(image)) as UploadApiResponse;
       if (!result.public_id) {
         throw new BadRequestError(result.message);
@@ -86,10 +91,18 @@ export class AddImage {
         publicId = result.public_id;
       }
     } else {
-      const value = image.split('/');
-      version = value[value.length - 2];
-      publicId = value[value.length - 1];
+      const isValidUrl = Helpers.isValidHttpsUrl(image);
+      if (isValidUrl) {
+        const value = image.split('/');
+        version = value[value.length - 2];
+        publicId = value[value.length - 1];
+      } else {
+        throw new BadRequestError('Invalid data format.');
+      }
     }
-    return { version: version.replace(/v/g, ''), publicId };
+
+    return { version: version?.replace(/v/g, ''), publicId };
   }
 }
+
+export const addImage = new AddImage();

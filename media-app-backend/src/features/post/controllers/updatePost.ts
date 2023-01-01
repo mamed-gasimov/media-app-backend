@@ -29,6 +29,10 @@ class UpdatePost {
       throw new BadRequestError('Post was not found');
     }
 
+    if (String(existingPost.userId) !== String(req.currentUser?.userId)) {
+      throw new BadRequestError('Only post creator can update the post.');
+    }
+
     const {
       post,
       bgColor,
@@ -52,16 +56,16 @@ class UpdatePost {
     }
 
     const updatedPostData = {
-      post,
-      bgColor,
+      post: post || existingPost.post,
+      bgColor: bgColor || existingPost.bgColor,
       imgVersion: `${result?.version || imgVersion || ''}`,
       imgId: `${result?.public_id || imgId || ''}`,
       videoId,
       videoVersion,
-      feelings,
-      gifUrl,
-      privacy,
-      profilePicture,
+      feelings: feelings || existingPost.feelings,
+      gifUrl: gifUrl || existingPost.gifUrl,
+      privacy: privacy || existingPost.privacy,
+      profilePicture: profilePicture || existingPost.profilePicture,
     } as IPostDocument;
 
     const postUpdated = await postCache.updatePostInCache(postId, updatedPostData);
