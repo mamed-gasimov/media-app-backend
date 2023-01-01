@@ -2,6 +2,12 @@
 @urlPath = api
 
 ###
+GET {{baseUrl}}/{{urlPath}}/images/<userId>
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+###
 POST {{baseUrl}}/{{urlPath}}/images/profile
 Content-Type: application/json
 Accept: application/json
