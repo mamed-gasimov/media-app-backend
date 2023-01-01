@@ -35,7 +35,7 @@ export interface IParams {
 export const fileDocumentMock: IFileImageDocument = {
   userId: new Types.ObjectId('60263f14648fed5246e322d9'),
   bgImageVersion: '2468',
-  bgImageId: '12345',
+  bgImageId: '60263f',
   imgVersion: '',
   imgId: '',
   createdAt: new Date(),

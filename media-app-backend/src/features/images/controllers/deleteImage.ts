@@ -5,7 +5,6 @@ import { UserCache } from '@service/redis/user.cache';
 import { IUserDocument } from '@user/interfaces/user.interface';
 import { socketIOImageObject } from '@socket/image.sockets';
 import { imageQueue } from '@service/queues/image.queue';
-import { IFileImageDocument } from '@image/interfaces/image.interface';
 import { imageService } from '@service/db/image.service';
 import { BadRequestError } from '@global/helpers/errorHandler';
 import { Helpers } from '@global/helpers/helpers';
@@ -41,7 +40,7 @@ export class DeleteImage {
       throw new BadRequestError('Invalid request.');
     }
 
-    const image: IFileImageDocument = await imageService.getImageByBackgroundId(req.params.bgImageId);
+    const image = await imageService.getImageByBackgroundId(req.params.bgImageId);
     if (!image) {
       throw new BadRequestError('Background image was not found.');
     }

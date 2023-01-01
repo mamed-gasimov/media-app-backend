@@ -46,12 +46,12 @@ class ImageService {
   }
 
   public async getImageId(imageId: string) {
-    const image = (await ImageModel.findOne({ _id: imageId }).exec()) as IFileImageDocument;
+    const image: IFileImageDocument | null = await ImageModel.findOne({ _id: imageId }).exec();
     return image;
   }
 
   public async getImageByBackgroundId(bgImageId: string) {
-    const image = (await ImageModel.findOne({ bgImageId }).exec()) as IFileImageDocument;
+    const image: IFileImageDocument | null = await ImageModel.findOne({ bgImageId }).exec();
     return image;
   }
 
