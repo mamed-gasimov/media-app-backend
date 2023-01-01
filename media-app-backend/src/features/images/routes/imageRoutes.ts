@@ -15,6 +15,11 @@ class ImageRoutes {
     this.router.post('/images/profile', authMiddleware.checkAuthentication, addImage.profileImage);
     this.router.post('/images/background', authMiddleware.checkAuthentication, addImage.backgroundImage);
     this.router.delete('/images/:imageId', authMiddleware.checkAuthentication, deleteImage.image);
+    this.router.delete(
+      '/images/background/:bgImageId',
+      authMiddleware.checkAuthentication,
+      deleteImage.backgroundImage
+    );
 
     return this.router;
   }

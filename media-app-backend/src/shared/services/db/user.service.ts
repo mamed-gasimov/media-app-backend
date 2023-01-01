@@ -22,6 +22,10 @@ class UserService {
     return UserModel.findOne({ _id: userId }).exec();
   }
 
+  public async removeBgImg(userId: string) {
+    return UserModel.findOneAndUpdate({ _id: userId }, { $set: { bgImageId: '', bgImageVersion: '' } });
+  }
+
   public async getUserByAuthId(authId: string) {
     const users: IUserDocument[] = await UserModel.aggregate([
       { $match: { authId: new mongoose.Types.ObjectId(authId) } },

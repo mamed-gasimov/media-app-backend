@@ -30,3 +30,9 @@ DELETE {{baseUrl}}/{{urlPath}}/images/<imageId>
 Content-Type: application/json
 Accept: application/json
 withCredentials: true
+
+###
+DELETE {{baseUrl}}/{{urlPath}}/images/background/<bgImageId>
+Content-Type: application/json
+Accept: application/json
+withCredentials: true

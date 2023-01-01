@@ -10,6 +10,7 @@ import { imageService } from '@service/db/image.service';
 import { BadRequestError } from '@global/helpers/errorHandler';
 import { Helpers } from '@global/helpers/helpers';
 import { deleteFileFromCloudinary } from '@global/helpers/cloudinaryUpload';
+import { userService } from '@service/db/user.service';
 
 const userCache = new UserCache();
 
@@ -36,7 +37,15 @@ export class DeleteImage {
   }
 
   public async backgroundImage(req: Request, res: Response) {
+    if (!req.params.bgImageId || !req.params.bgImageId?.trim()) {
+      throw new BadRequestError('Invalid request.');
+    }
+
     const image: IFileImageDocument = await imageService.getImageByBackgroundId(req.params.bgImageId);
+    if (!image) {
+      throw new BadRequestError('Background image was not found.');
+    }
+
     socketIOImageObject.emit('delete image', image?._id);
     const bgImageId = userCache.updateSingleUserItemInCache(
       `${req.currentUser!.userId}`,
@@ -49,9 +58,12 @@ export class DeleteImage {
       ''
     ) as Promise<IUserDocument>;
     (await Promise.all([bgImageId, bgImageVersion])) as [IUserDocument, IUserDocument];
+
     imageQueue.addImageJob('removeImageFromDb', {
       imageId: image?._id,
     });
+    await userService.removeBgImg(req.currentUser!.userId);
+
     res.status(HTTP_STATUS.OK).json({ message: 'Image deleted successfully' });
   }
 }
