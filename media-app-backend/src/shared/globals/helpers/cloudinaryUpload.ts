@@ -13,3 +13,14 @@ export function uploads(
     });
   });
 }
+
+export function deleteFileFromCloudinary(
+  publicId: string
+): Promise<UploadApiResponse | UploadApiErrorResponse | undefined> {
+  return new Promise((resolve) => {
+    cloudinary.v2.uploader.destroy(publicId, (error, result) => {
+      if (error) resolve(error);
+      resolve(result);
+    });
+  });
+}

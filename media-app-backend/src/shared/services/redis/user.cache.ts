@@ -7,6 +7,7 @@ import { BaseCache } from '@service/redis/base.cache';
 import { INotificationSettings, ISocialLinks, IUserDocument } from '@user/interfaces/user.interface';
 
 const log = config.createLogger('userCache');
+type UserItem = string | ISocialLinks | INotificationSettings;
 
 export class UserCache extends BaseCache {
   constructor() {
@@ -123,6 +124,26 @@ export class UserCache extends BaseCache {
       response.followersCount = Helpers.parseJson(`${response.followersCount || 0}`) as unknown as number;
       response.followingCount = Helpers.parseJson(`${response.followingCount || 0}`) as unknown as number;
 
+      return response;
+    } catch (error) {
+      log.error(error);
+      throw new ServerError('Server error. Try again.');
+    }
+  }
+
+  public async updateSingleUserItemInCache(
+    userId: string,
+    prop: string,
+    value: UserItem
+  ): Promise<IUserDocument | null> {
+    try {
+      if (!this.client.isOpen) {
+        await this.client.connect();
+      }
+      const val = typeof value === 'string' ? value : JSON.stringify(value);
+      const dataToSave = [`${prop}`, val];
+      await this.client.HSET(`users:${userId}`, dataToSave);
+      const response = (await this.getUserFromCache(userId)) as IUserDocument;
       return response;
     } catch (error) {
       log.error(error);

@@ -50,4 +50,15 @@ export class Helpers {
 
     return true;
   }
+
+  static isDataBase64(value: string) {
+    const dataUrlRegex =
+      /^\s*data:([a-z]+\/[a-z0-9-+.]+(;[a-z-]+=[a-z0-9-]+)?)?(;base64)?,([a-z0-9!$&',()*+;=\-._~:@\\/?%\s]*)\s*$/i;
+    return dataUrlRegex.test(value);
+  }
+
+  static isValidHttpsUrl(value: string) {
+    const urlPattern = /(?:https?):\/\/(\w+:?\w*)?(\S+)(:\d+)?(\/|\/([\w#!:.?+=&%!\-/]))?/;
+    return urlPattern.test(value);
+  }
 }
