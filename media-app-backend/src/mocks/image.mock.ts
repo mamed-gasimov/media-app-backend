@@ -39,4 +39,5 @@ export const fileDocumentMock: IFileImageDocument = {
   imgVersion: '',
   imgId: '',
   createdAt: new Date(),
+  _id: '60263f14648fed5246e322d9',
 } as IFileImageDocument;
