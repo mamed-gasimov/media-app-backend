@@ -50,7 +50,7 @@ export interface IMessageNotification {
   message: string;
   receiverName: string;
   receiverId: string;
-  messageData: IMessageData;
+  messageData?: IMessageData;
 }
 
 export interface IChatUsers {
