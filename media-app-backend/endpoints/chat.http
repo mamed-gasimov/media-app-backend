@@ -1,0 +1,20 @@
+@baseUrl = http://localhost:5000
+@urlPath = api
+
+###
+POST {{baseUrl}}/{{urlPath}}/chat/message
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+{
+  "conversationId": "",
+  "receiverId": "",
+  "receiverUsername": "",
+  "receiverAvatarColor": "",
+  "receiverProfilePicture": "<cloudinary-user-profile-picture-url>",
+  "body": "",
+  "gifUrl": "",
+  "isRead": false,
+  "selectedImage": ""
+}

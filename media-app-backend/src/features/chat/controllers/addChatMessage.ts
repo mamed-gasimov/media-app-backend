@@ -16,8 +16,10 @@ import { socketIOChatObject } from '@socket/chat.sockets';
 import { notificationTemplate } from '@service/emails/templates/notifications/notificationTemplate';
 import { INotificationTemplate } from '@notification/interfaces/notification.interface';
 import { emailQueue } from '@service/queues/email.queue';
+import { ChatCache } from '@service/redis/chat.cache';
 
 const userCache = new UserCache();
+const chatCache = new ChatCache();
 
 class AddChatMessage {
   @joiValidation(addChatSchema)
@@ -82,6 +84,18 @@ class AddChatMessage {
         receiverId,
       });
     }
+
+    await chatCache.addChatListToCache(
+      `${req.currentUser!.userId}`,
+      `${receiverId}`,
+      `${conversationObjectId}`
+    );
+    await chatCache.addChatListToCache(
+      `${receiverId}`,
+      `${req.currentUser!.userId}`,
+      `${conversationObjectId}`
+    );
+    await chatCache.addChatMessageToCache(`${conversationObjectId}`, messageData);
 
     res.status(HTTP_STATUS.OK).json({ message: 'Message added', conversationId: conversationObjectId });
   }
