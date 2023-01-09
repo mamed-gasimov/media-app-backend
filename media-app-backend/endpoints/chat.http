@@ -1,4 +1,4 @@
-@baseUrl = http://localhost:5000
+@baseUrl = http://localhost:8000
 @urlPath = api
 
 ###
@@ -10,11 +10,28 @@ withCredentials: true
 {
   "conversationId": "",
   "receiverId": "",
-  "receiverUsername": "",
-  "receiverAvatarColor": "",
-  "receiverProfilePicture": "<cloudinary-user-profile-picture-url>",
   "body": "",
   "gifUrl": "",
   "isRead": false,
   "selectedImage": ""
+}
+
+###
+POST {{baseUrl}}/{{urlPath}}/chat/users
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+{
+  "receiverId": ""
+}
+
+###
+DELETE {{baseUrl}}/{{urlPath}}/chat/users
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+{
+  "receiverId": ""
 }

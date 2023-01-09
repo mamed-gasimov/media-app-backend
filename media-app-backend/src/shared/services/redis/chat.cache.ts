@@ -1,5 +1,6 @@
-import { IMessageData } from '@chat/interfaces/chat.interface';
+import { IChatUsers, IMessageData } from '@chat/interfaces/chat.interface';
 import { ServerError } from '@global/helpers/errorHandler';
+import { Helpers } from '@global/helpers/helpers';
 import { config } from '@root/config';
 import { BaseCache } from '@service/redis/base.cache';
 
@@ -40,5 +41,62 @@ export class ChatCache extends BaseCache {
       log.error(error);
       throw new ServerError('Server error. Try again.');
     }
+  }
+
+  public async addChatUsersToCache(value: IChatUsers) {
+    try {
+      if (!this.client.isOpen) {
+        await this.client.connect();
+      }
+      const users: IChatUsers[] = await this.getChatUsersList();
+      const usersIndex = users.findIndex(
+        (listItem: IChatUsers) => JSON.stringify(listItem) === JSON.stringify(value)
+      );
+
+      let chatUsers: IChatUsers[] = [];
+      if (usersIndex === -1) {
+        await this.client.RPUSH('chatUsers', JSON.stringify(value));
+        chatUsers = await this.getChatUsersList();
+      } else {
+        chatUsers = users;
+      }
+      return chatUsers;
+    } catch (error) {
+      log.error(error);
+      throw new ServerError('Server error. Try again.');
+    }
+  }
+
+  public async removeChatUsersFromCache(value: IChatUsers): Promise<IChatUsers[]> {
+    try {
+      if (!this.client.isOpen) {
+        await this.client.connect();
+      }
+      const users: IChatUsers[] = await this.getChatUsersList();
+      const usersIndex: number = users.findIndex(
+        (listItem: IChatUsers) => JSON.stringify(listItem) === JSON.stringify(value)
+      );
+      let chatUsers: IChatUsers[] = [];
+      if (usersIndex > -1) {
+        await this.client.LREM('chatUsers', usersIndex, JSON.stringify(value));
+        chatUsers = await this.getChatUsersList();
+      } else {
+        chatUsers = users;
+      }
+      return chatUsers;
+    } catch (error) {
+      log.error(error);
+      throw new ServerError('Server error. Try again.');
+    }
+  }
+
+  private async getChatUsersList() {
+    const chatUsersList: IChatUsers[] = [];
+    const chatUsers = await this.client.LRANGE('chatUsers', 0, -1);
+    for (const item of chatUsers) {
+      const chatUser = Helpers.parseJson(item) as IChatUsers;
+      chatUsersList.push(chatUser);
+    }
+    return chatUsersList;
   }
 }

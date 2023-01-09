@@ -4,7 +4,7 @@ import { Types } from 'mongoose';
 import HTTP_STATUS from 'http-status-codes';
 
 import { UserCache } from '@service/redis/user.cache';
-import { addChatSchema } from '@chat/schemas/chat';
+import { addChatSchema, chatUserSchema } from '@chat/schemas/chat';
 import { joiValidation } from '@global/decorators/joiValidation.decorator';
 import { IUserDocument } from '@user/interfaces/user.interface';
 import { IMessageData, IMessageNotification } from '@chat/interfaces/chat.interface';
@@ -17,6 +17,7 @@ import { notificationTemplate } from '@service/emails/templates/notifications/no
 import { INotificationTemplate } from '@notification/interfaces/notification.interface';
 import { emailQueue } from '@service/queues/email.queue';
 import { ChatCache } from '@service/redis/chat.cache';
+import { userService } from '@service/db/user.service';
 
 const userCache = new UserCache();
 const chatCache = new ChatCache();
@@ -24,17 +25,20 @@ const chatCache = new ChatCache();
 class AddChatMessage {
   @joiValidation(addChatSchema)
   public async message(req: Request, res: Response) {
-    const {
-      conversationId,
-      receiverId,
-      receiverUsername,
-      receiverAvatarColor,
-      receiverProfilePicture,
-      body,
-      gifUrl,
-      isRead,
-      selectedImage,
-    } = req.body;
+    const { conversationId, receiverId, body, gifUrl, isRead, selectedImage } = req.body;
+
+    if (!Helpers.checkValidObjectId(receiverId)) {
+      throw new BadRequestError('Invalid request.');
+    }
+
+    if (receiverId === `${req.currentUser?.userId}`) {
+      throw new BadRequestError('Invalid request.');
+    }
+
+    const receiverUser = await userService.getUserById(receiverId);
+    if (!receiverUser) {
+      throw new BadRequestError('User was not found.');
+    }
 
     let fileUrl = '';
     const messageObjectId = new ObjectId();
@@ -57,9 +61,9 @@ class AddChatMessage {
       _id: `${messageObjectId}`,
       conversationId: new Types.ObjectId(conversationObjectId),
       receiverId,
-      receiverAvatarColor,
-      receiverProfilePicture,
-      receiverUsername,
+      receiverAvatarColor: receiverUser.avatarColor || '',
+      receiverProfilePicture: receiverUser.profilePicture || '',
+      receiverUsername: receiverUser.username || '',
       senderUsername: `${req.currentUser!.username}`,
       senderId: `${req.currentUser!.userId}`,
       senderAvatarColor: `${req.currentUser!.avatarColor}`,
@@ -80,7 +84,7 @@ class AddChatMessage {
       AddChatMessage.prototype.messageNotification({
         currentUser: req.currentUser!,
         message: body,
-        receiverName: receiverUsername,
+        receiverName: receiverUser.username!,
         receiverId,
       });
     }
@@ -98,6 +102,44 @@ class AddChatMessage {
     await chatCache.addChatMessageToCache(`${conversationObjectId}`, messageData);
 
     res.status(HTTP_STATUS.OK).json({ message: 'Message added', conversationId: conversationObjectId });
+  }
+
+  @joiValidation(chatUserSchema)
+  public async addChatUsers(req: Request, res: Response) {
+    const { receiverId } = req.body;
+    if (!Helpers.checkValidObjectId(receiverId)) {
+      throw new BadRequestError('Invalid request.');
+    }
+
+    if (receiverId === `${req.currentUser?.userId}`) {
+      throw new BadRequestError('Invalid request.');
+    }
+
+    const chatUsers = await chatCache.addChatUsersToCache({
+      userOne: `${req.currentUser!.userId}`,
+      userTwo: receiverId,
+    });
+    socketIOChatObject.emit('add chat users', chatUsers);
+    res.status(HTTP_STATUS.OK).json({ message: 'Users added' });
+  }
+
+  @joiValidation(chatUserSchema)
+  public async removeChatUsers(req: Request, res: Response) {
+    const { receiverId } = req.body;
+    if (!Helpers.checkValidObjectId(receiverId)) {
+      throw new BadRequestError('Invalid request.');
+    }
+
+    if (receiverId === `${req.currentUser?.userId}`) {
+      throw new BadRequestError('Invalid request.');
+    }
+
+    const chatUsers = await chatCache.removeChatUsersFromCache({
+      userOne: `${req.currentUser!.userId}`,
+      userTwo: receiverId,
+    });
+    socketIOChatObject.emit('add chat users', chatUsers);
+    res.status(HTTP_STATUS.OK).json({ message: 'Users removed' });
   }
 
   private emitSocketIOEvent(data: IMessageData) {

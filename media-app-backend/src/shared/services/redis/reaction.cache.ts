@@ -1,5 +1,3 @@
-import { find } from 'lodash';
-
 import { ServerError } from '@global/helpers/errorHandler';
 import { Helpers } from '@global/helpers/helpers';
 import { IReactionDocument, IReactions, ReactionType } from '@reaction/interfaces/reaction.interface';
@@ -105,7 +103,7 @@ export class ReactionsCache extends BaseCache {
       const response = await this.client.LRANGE(`reactions:${postId}`, 0, -1);
       const list: IReactionDocument[] = response.map((item) => Helpers.parseJson(item));
 
-      return find(list, (listItem) => {
+      return list.find((listItem) => {
         return listItem?.postId === postId && listItem?.username === username;
       });
     } catch (error) {
@@ -120,6 +118,6 @@ export class ReactionsCache extends BaseCache {
       list.push(Helpers.parseJson(item));
     }
 
-    return find(list, (listItem) => listItem?.username === username);
+    return list.find((listItem) => listItem?.username === username);
   }
 }

@@ -3,9 +3,6 @@ import Joi from 'joi';
 const addChatSchema = Joi.object().keys({
   conversationId: Joi.string().optional().allow(null, ''),
   receiverId: Joi.string().required(),
-  receiverUsername: Joi.string().required(),
-  receiverAvatarColor: Joi.string().required(),
-  receiverProfilePicture: Joi.string().required(),
   body: Joi.string().optional().allow(null, ''),
   gifUrl: Joi.string().optional().allow(null, ''),
   selectedImage: Joi.string().optional().allow(null, ''),
@@ -17,4 +14,8 @@ const markChatSchema = Joi.object().keys({
   receiverId: Joi.string().required(),
 });
 
-export { addChatSchema, markChatSchema };
+const chatUserSchema = Joi.object().keys({
+  receiverId: Joi.string().required(),
+});
+
+export { addChatSchema, markChatSchema, chatUserSchema };

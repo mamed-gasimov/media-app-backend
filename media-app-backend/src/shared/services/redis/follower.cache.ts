@@ -1,13 +1,10 @@
-import { remove } from 'lodash';
 import mongoose from 'mongoose';
 
 import { config } from '@root/config';
 import { IFollowerData } from '@follower/interfaces/follower.interface';
 import { ServerError } from '@global/helpers/errorHandler';
-import { Helpers } from '@global/helpers/helpers';
 import { BaseCache } from '@service/redis/base.cache';
 import { UserCache } from '@service/redis/user.cache';
-import { IUserDocument } from '@user/interfaces/user.interface';
 
 const log = config.createLogger('followersCache');
 const userCache = new UserCache();

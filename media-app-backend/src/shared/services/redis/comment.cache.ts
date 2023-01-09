@@ -1,5 +1,3 @@
-import { find } from 'lodash';
-
 import { ICommentDocument, ICommentNameList } from '@comment/interfaces/comments.interface';
 import { ServerError } from '@global/helpers/errorHandler';
 import { Helpers } from '@global/helpers/helpers';
@@ -83,7 +81,7 @@ export class CommentsCache extends BaseCache {
       for (const item of comments) {
         list.push(Helpers.parseJson(item));
       }
-      const result = find(list, (listItem: ICommentDocument) => {
+      const result = list.find((listItem: ICommentDocument) => {
         return listItem._id === commentId;
       }) as ICommentDocument;
 
