@@ -1,4 +1,4 @@
-import { IChatUsers, IMessageData } from '@chat/interfaces/chat.interface';
+import { IChatList, IChatUsers, IMessageData } from '@chat/interfaces/chat.interface';
 import { ServerError } from '@global/helpers/errorHandler';
 import { Helpers } from '@global/helpers/helpers';
 import { config } from '@root/config';
@@ -84,6 +84,26 @@ export class ChatCache extends BaseCache {
         chatUsers = users;
       }
       return chatUsers;
+    } catch (error) {
+      log.error(error);
+      throw new ServerError('Server error. Try again.');
+    }
+  }
+
+  public async getUserConversationList(userId: string) {
+    try {
+      if (!this.client.isOpen) {
+        await this.client.connect();
+      }
+
+      const userChatList = await this.client.LRANGE(`chatList:${userId}`, 0, -1);
+      const conversationChatList: IMessageData[] = [];
+      for (const item of userChatList) {
+        const chatItem = Helpers.parseJson(item) as IChatList;
+        const lastMessage = (await this.client.LINDEX(`messages:${chatItem.conversationId}`, -1)) as string;
+        conversationChatList.push(Helpers.parseJson(lastMessage));
+      }
+      return conversationChatList;
     } catch (error) {
       log.error(error);
       throw new ServerError('Server error. Try again.');
