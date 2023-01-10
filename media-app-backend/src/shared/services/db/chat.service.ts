@@ -83,6 +83,17 @@ class ChatService {
     const messages: IMessageData[] = await MessageModel.aggregate([{ $match: query }, { $sort: sort }]);
     return messages;
   }
+
+  public async markMessageAsDeleted(messageId: string, type: string) {
+    if (type === 'deleteForMe') {
+      await MessageModel.updateOne({ _id: messageId }, { $set: { deleteForMe: true } }).exec();
+    } else {
+      await MessageModel.updateOne(
+        { _id: messageId },
+        { $set: { deleteForMe: true, deleteForEveryone: true } }
+      ).exec();
+    }
+  }
 }
 
 export const chatService = new ChatService();

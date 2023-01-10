@@ -14,8 +14,14 @@ const markChatSchema = Joi.object().keys({
   receiverId: Joi.string().required(),
 });
 
+const deleteChatMessageSchema = Joi.object().keys({
+  receiverId: Joi.string().required(),
+  messageId: Joi.string().required(),
+  type: Joi.string().valid('deleteForMe', 'deleteForEveryone').required(),
+});
+
 const chatUserSchema = Joi.object().keys({
   receiverId: Joi.string().required(),
 });
 
-export { addChatSchema, markChatSchema, chatUserSchema };
+export { addChatSchema, markChatSchema, chatUserSchema, deleteChatMessageSchema };

@@ -1,4 +1,4 @@
-import { IChatList, IChatUsers, IMessageData } from '@chat/interfaces/chat.interface';
+import { IChatList, IChatUsers, IGetMessageFromCache, IMessageData } from '@chat/interfaces/chat.interface';
 import { ServerError } from '@global/helpers/errorHandler';
 import { Helpers } from '@global/helpers/helpers';
 import { config } from '@root/config';
@@ -137,6 +137,31 @@ export class ChatCache extends BaseCache {
     }
   }
 
+  public async markMessageAsDeleted(senderId: string, receiverId: string, messageId: string, type: string) {
+    try {
+      if (!this.client.isOpen) {
+        await this.client.connect();
+      }
+
+      const { index, message, receiver } = await this.getMessage(senderId, receiverId, messageId);
+      const chatItem = Helpers.parseJson(message) as IMessageData;
+
+      if (type === 'deleteForMe') {
+        chatItem.deleteForMe = true;
+      } else {
+        chatItem.deleteForMe = true;
+        chatItem.deleteForEveryone = true;
+      }
+      await this.client.LSET(`messages:${receiver.conversationId}`, index, JSON.stringify(chatItem));
+
+      const lastMessage = (await this.client.LINDEX(`messages:${receiver.conversationId}`, index)) as string;
+      return Helpers.parseJson(lastMessage) as IMessageData;
+    } catch (error) {
+      log.error(error);
+      throw new ServerError('Server error. Try again.');
+    }
+  }
+
   private async getChatUsersList() {
     const chatUsersList: IChatUsers[] = [];
     const chatUsers = await this.client.LRANGE('chatUsers', 0, -1);
@@ -145,5 +170,20 @@ export class ChatCache extends BaseCache {
       chatUsersList.push(chatUser);
     }
     return chatUsersList;
+  }
+
+  private async getMessage(
+    senderId: string,
+    receiverId: string,
+    messageId: string
+  ): Promise<IGetMessageFromCache> {
+    const userChatList = await this.client.LRANGE(`chatList:${senderId}`, 0, -1);
+    const receiver = userChatList.find((listItem: string) => listItem.includes(receiverId)) as string;
+    const parsedReceiver = Helpers.parseJson(receiver) as IChatList;
+    const messages = await this.client.LRANGE(`messages:${parsedReceiver.conversationId}`, 0, -1);
+    const message = messages.find((listItem: string) => listItem.includes(messageId)) as string;
+    const index = messages.findIndex((listItem: string) => listItem.includes(messageId));
+
+    return { index, message, receiver: parsedReceiver };
   }
 }

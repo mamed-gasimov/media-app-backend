@@ -12,6 +12,11 @@ class ChatQueue extends BaseQueue {
       5,
       chatWorker.addChatMessageToDb as ProcessPromiseFunction<IBaseJobData>
     );
+    this.processJob(
+      'markMessageAsDeletedInDb',
+      5,
+      chatWorker.markMessageAsDeleted as ProcessPromiseFunction<IBaseJobData>
+    );
   }
 
   public addChatJob(name: string, data: IChatJobData | IMessageData) {

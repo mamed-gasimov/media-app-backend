@@ -47,3 +47,16 @@ withCredentials: true
 {
   "receiverId": ""
 }
+
+###
+DELETE {{baseUrl}}/{{urlPath}}/chat/messages
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+# For this endpoint, the type is either deleteForMe or deleteForEveryone
+{
+  "receiverId": "",
+  "messageId": "",
+  "type": ""
+}
+
