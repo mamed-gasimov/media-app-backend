@@ -8,6 +8,12 @@ Accept: application/json
 withCredentials: true
 
 ###
+GET {{baseUrl}}/{{urlPath}}/chat/messages/<receiverId>
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+###
 POST {{baseUrl}}/{{urlPath}}/chat/message
 Content-Type: application/json
 Accept: application/json

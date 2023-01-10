@@ -17,6 +17,11 @@ class ChatRoutes {
       authMiddleware.checkAuthentication,
       getChatMessages.conversationList
     );
+    this.router.get(
+      '/chat/messages/:receiverId',
+      authMiddleware.checkAuthentication,
+      getChatMessages.messages
+    );
     this.router.post('/chat/message', authMiddleware.checkAuthentication, addChatMessage.message);
     this.router.post('/chat/users', authMiddleware.checkAuthentication, addChatMessage.addChatUsers);
     this.router.delete('/chat/users', authMiddleware.checkAuthentication, addChatMessage.removeChatUsers);

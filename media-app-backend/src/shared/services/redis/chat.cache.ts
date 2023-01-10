@@ -36,7 +36,7 @@ export class ChatCache extends BaseCache {
       if (!this.client.isOpen) {
         await this.client.connect();
       }
-      await this.client.RPUSH(`messages:${conversationId}`, JSON.stringify(value));
+      await this.client.LPUSH(`messages:${conversationId}`, JSON.stringify(value));
     } catch (error) {
       log.error(error);
       throw new ServerError('Server error. Try again.');
@@ -73,7 +73,7 @@ export class ChatCache extends BaseCache {
         await this.client.connect();
       }
       const users: IChatUsers[] = await this.getChatUsersList();
-      const usersIndex: number = users.findIndex(
+      const usersIndex = users.findIndex(
         (listItem: IChatUsers) => JSON.stringify(listItem) === JSON.stringify(value)
       );
       let chatUsers: IChatUsers[] = [];
@@ -104,6 +104,33 @@ export class ChatCache extends BaseCache {
         conversationChatList.push(Helpers.parseJson(lastMessage));
       }
       return conversationChatList;
+    } catch (error) {
+      log.error(error);
+      throw new ServerError('Server error. Try again.');
+    }
+  }
+
+  public async getChatMessagesFromCache(senderId: string, receiverId: string) {
+    try {
+      if (!this.client.isOpen) {
+        await this.client.connect();
+      }
+
+      const userChatList = await this.client.LRANGE(`chatList:${senderId}`, 0, -1);
+      const receiver = userChatList.find((listItem: string) => listItem.includes(receiverId)) as string;
+      const parsedReceiver = Helpers.parseJson(receiver) as IChatList;
+
+      if (parsedReceiver) {
+        const userMessages = await this.client.LRANGE(`messages:${parsedReceiver.conversationId}`, 0, -1);
+        const chatMessages: IMessageData[] = [];
+        for (const item of userMessages) {
+          const chatItem = Helpers.parseJson(item) as IMessageData;
+          chatMessages.push(chatItem);
+        }
+        return chatMessages;
+      }
+
+      return [];
     } catch (error) {
       log.error(error);
       throw new ServerError('Server error. Try again.');
