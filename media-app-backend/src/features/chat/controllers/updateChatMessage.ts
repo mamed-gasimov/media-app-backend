@@ -10,7 +10,7 @@ import { chatUserSchema } from '@chat/schemas/chat';
 import { Helpers } from '@global/helpers/helpers';
 import { BadRequestError } from '@global/helpers/errorHandler';
 
-const messageCache = new ChatCache();
+const chatCache = new ChatCache();
 
 export class UpdateChatMessage {
   @joiValidation(chatUserSchema)
@@ -25,10 +25,7 @@ export class UpdateChatMessage {
       throw new BadRequestError('Invalid request.');
     }
 
-    const updatedMessage = await messageCache.updateChatMessages(
-      `${req.currentUser!.userId}`,
-      `${receiverId}`
-    );
+    const updatedMessage = await chatCache.updateChatMessages(`${req.currentUser!.userId}`, `${receiverId}`);
     socketIOChatObject.emit('message read', updatedMessage);
     socketIOChatObject.emit('chat list', updatedMessage);
 

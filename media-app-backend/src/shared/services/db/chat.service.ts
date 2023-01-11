@@ -4,6 +4,7 @@ import { IMessageData } from '@chat/interfaces/chat.interface';
 import { IConversationDocument } from '@chat/interfaces/conversation.interface';
 import { MessageModel } from '@chat/models/chat.model';
 import { ConversationModel } from '@chat/models/conversation.model';
+import { ReactionType } from '@reaction/interfaces/reaction.interface';
 
 class ChatService {
   public async addMessageToDb(data: IMessageData) {
@@ -100,6 +101,22 @@ class ChatService {
       ],
     };
     await MessageModel.updateMany(query, { $set: { isRead: true } }).exec();
+  }
+
+  public async updateMessageReaction(
+    messageId: ObjectId,
+    senderName: string,
+    reaction: ReactionType,
+    type: 'add' | 'remove'
+  ) {
+    if (type === 'add') {
+      await MessageModel.updateOne(
+        { _id: messageId },
+        { $push: { reaction: { senderName, type: reaction } } }
+      ).exec();
+    } else if (type === 'remove') {
+      await MessageModel.updateOne({ _id: messageId }, { $pull: { reaction: { senderName } } }).exec();
+    }
   }
 }
 

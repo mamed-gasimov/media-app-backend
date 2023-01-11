@@ -49,6 +49,19 @@ withCredentials: true
 }
 
 ###
+PUT {{baseUrl}}/{{urlPath}}/chat/message/reaction
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+{
+  "conversationId": "",
+  "messageId": "",
+  "reaction": "",
+  "type": ""
+}
+
+###
 DELETE {{baseUrl}}/{{urlPath}}/chat/users
 Content-Type: application/json
 Accept: application/json

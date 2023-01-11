@@ -1,6 +1,9 @@
+import { remove } from 'lodash';
+
 import { IChatList, IChatUsers, IGetMessageFromCache, IMessageData } from '@chat/interfaces/chat.interface';
 import { ServerError } from '@global/helpers/errorHandler';
 import { Helpers } from '@global/helpers/helpers';
+import { IReaction, ReactionType } from '@reaction/interfaces/reaction.interface';
 import { config } from '@root/config';
 import { BaseCache } from '@service/redis/base.cache';
 
@@ -199,6 +202,39 @@ export class ChatCache extends BaseCache {
         -1
       )) as string;
       return Helpers.parseJson(lastMessage) as IMessageData;
+    } catch (error) {
+      log.error(error);
+      throw new ServerError('Server error. Try again.');
+    }
+  }
+
+  public async updateMessageReaction(
+    conversationId: string,
+    messageId: string,
+    reaction: ReactionType,
+    senderName: string,
+    type: 'add' | 'remove'
+  ) {
+    try {
+      if (!this.client.isOpen) {
+        await this.client.connect();
+      }
+
+      const messages = await this.client.LRANGE(`messages:${conversationId}`, 0, -1);
+      const messageIndex = messages.findIndex((listItem: string) => listItem.includes(messageId));
+      const message = (await this.client.LINDEX(`messages:${conversationId}`, messageIndex)) as string;
+      const parsedMessage = Helpers.parseJson(message) as IMessageData;
+      const reactions: IReaction[] = [];
+      if (parsedMessage) {
+        remove(parsedMessage.reaction, (reaction: IReaction) => reaction.senderName === senderName);
+        if (type === 'add') {
+          reactions.push({ senderName, type: reaction });
+          parsedMessage.reaction = [...parsedMessage.reaction, ...reactions];
+        }
+        await this.client.LSET(`messages:${conversationId}`, messageIndex, JSON.stringify(parsedMessage));
+      }
+      const updatedMessage = (await this.client.LINDEX(`messages:${conversationId}`, messageIndex)) as string;
+      return Helpers.parseJson(updatedMessage) as IMessageData;
     } catch (error) {
       log.error(error);
       throw new ServerError('Server error. Try again.');

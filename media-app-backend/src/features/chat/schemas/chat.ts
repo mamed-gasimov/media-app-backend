@@ -19,4 +19,11 @@ const chatUserSchema = Joi.object().keys({
   receiverId: Joi.string().required(),
 });
 
-export { addChatSchema, chatUserSchema, deleteChatMessageSchema };
+const addMessageReactionSchema = Joi.object().keys({
+  conversationId: Joi.string().required(),
+  messageId: Joi.string().required(),
+  reaction: Joi.string().valid('like', 'love', 'happy', 'wow', 'sad', 'angry').required(),
+  type: Joi.string().valid('add', 'remove').required(),
+});
+
+export { addChatSchema, chatUserSchema, deleteChatMessageSchema, addMessageReactionSchema };
