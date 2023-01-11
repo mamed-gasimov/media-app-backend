@@ -4,6 +4,7 @@ import { authMiddleware } from '@global/helpers/authMiddleware';
 import { addChatMessage } from '@chat/controllers/addChatMessage';
 import { getChatMessages } from '@chat/controllers/getChatMessages';
 import { deleteChatMessage } from '@chat/controllers/deleteChatMessage';
+import { updateChatMessage } from '@chat/controllers/updateChatMessage';
 
 class ChatRoutes {
   private router: Router;
@@ -25,6 +26,7 @@ class ChatRoutes {
     );
     this.router.post('/chat/message', authMiddleware.checkAuthentication, addChatMessage.message);
     this.router.post('/chat/users', authMiddleware.checkAuthentication, addChatMessage.addChatUsers);
+    this.router.put('/chat/message', authMiddleware.checkAuthentication, updateChatMessage.markMessageAsRead);
     this.router.delete('/chat/users', authMiddleware.checkAuthentication, addChatMessage.removeChatUsers);
     this.router.delete(
       '/chat/message',

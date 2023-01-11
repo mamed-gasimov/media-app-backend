@@ -91,6 +91,16 @@ class ChatService {
       await MessageModel.deleteOne({ _id: messageId }).exec();
     }
   }
+
+  public async markMessagesAsRead(senderId: ObjectId, receiverId: ObjectId) {
+    const query = {
+      $or: [
+        { senderId, receiverId, isRead: false },
+        { senderId: receiverId, receiverId: senderId, isRead: false },
+      ],
+    };
+    await MessageModel.updateMany(query, { $set: { isRead: true } }).exec();
+  }
 }
 
 export const chatService = new ChatService();

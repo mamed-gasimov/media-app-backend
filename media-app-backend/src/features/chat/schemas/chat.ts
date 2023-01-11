@@ -9,11 +9,6 @@ const addChatSchema = Joi.object().keys({
   isRead: Joi.boolean().optional(),
 });
 
-const markChatSchema = Joi.object().keys({
-  senderId: Joi.string().required(),
-  receiverId: Joi.string().required(),
-});
-
 const deleteChatMessageSchema = Joi.object().keys({
   receiverId: Joi.string().required(),
   messageId: Joi.string().required(),
@@ -24,4 +19,4 @@ const chatUserSchema = Joi.object().keys({
   receiverId: Joi.string().required(),
 });
 
-export { addChatSchema, markChatSchema, chatUserSchema, deleteChatMessageSchema };
+export { addChatSchema, chatUserSchema, deleteChatMessageSchema };
