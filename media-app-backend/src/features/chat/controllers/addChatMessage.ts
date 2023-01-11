@@ -73,7 +73,10 @@ class AddChatMessage {
       isRead,
       gifUrl,
       selectedImage: fileUrl,
-      reaction: [],
+      reaction: {
+        sender: { username: `${req.currentUser!.username}`, reactionType: undefined },
+        receiver: { username: receiverUser.username as string, reactionType: undefined },
+      },
       createdAt: new Date(),
       deleteForMe: false,
     };

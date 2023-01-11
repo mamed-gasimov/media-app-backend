@@ -105,18 +105,20 @@ class ChatService {
 
   public async updateMessageReaction(
     messageId: ObjectId,
-    senderName: string,
     reaction: ReactionType,
-    type: 'add' | 'remove'
+    type: 'add' | 'remove',
+    userType: 'sender' | 'receiver'
   ) {
+    const prop = `reaction.${userType}.reactionType`;
     if (type === 'add') {
-      await MessageModel.updateOne(
-        { _id: messageId },
-        { $push: { reaction: { senderName, type: reaction } } }
-      ).exec();
+      await MessageModel.updateOne({ _id: messageId }, { $set: { [prop]: reaction } });
     } else if (type === 'remove') {
-      await MessageModel.updateOne({ _id: messageId }, { $pull: { reaction: { senderName } } }).exec();
+      await MessageModel.updateOne({ _id: messageId }, { $set: { [prop]: '' } }).exec();
     }
+  }
+
+  public async getMessageById(messageId: ObjectId) {
+    return MessageModel.findOne({ _id: messageId });
   }
 }
 

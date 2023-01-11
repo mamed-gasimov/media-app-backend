@@ -1,9 +1,7 @@
-import { remove } from 'lodash';
-
 import { IChatList, IChatUsers, IGetMessageFromCache, IMessageData } from '@chat/interfaces/chat.interface';
 import { ServerError } from '@global/helpers/errorHandler';
 import { Helpers } from '@global/helpers/helpers';
-import { IReaction, ReactionType } from '@reaction/interfaces/reaction.interface';
+import { ReactionType } from '@reaction/interfaces/reaction.interface';
 import { config } from '@root/config';
 import { BaseCache } from '@service/redis/base.cache';
 
@@ -212,26 +210,34 @@ export class ChatCache extends BaseCache {
     conversationId: string,
     messageId: string,
     reaction: ReactionType,
-    senderName: string,
-    type: 'add' | 'remove'
+    type: 'add' | 'remove',
+    userType?: 'sender' | 'receiver'
   ) {
     try {
       if (!this.client.isOpen) {
         await this.client.connect();
       }
 
+      if (!userType) {
+        return null;
+      }
+
       const messages = await this.client.LRANGE(`messages:${conversationId}`, 0, -1);
       const messageIndex = messages.findIndex((listItem: string) => listItem.includes(messageId));
       const message = (await this.client.LINDEX(`messages:${conversationId}`, messageIndex)) as string;
+      if (!message) {
+        return null;
+      }
+
       const parsedMessage = Helpers.parseJson(message) as IMessageData;
-      const reactions: IReaction[] = [];
+      const copyMessage = parsedMessage;
       if (parsedMessage) {
-        remove(parsedMessage.reaction, (reaction: IReaction) => reaction.senderName === senderName);
         if (type === 'add') {
-          reactions.push({ senderName, type: reaction });
-          parsedMessage.reaction = [...parsedMessage.reaction, ...reactions];
+          copyMessage.reaction[userType].reactionType = reaction;
+        } else if (type === 'remove') {
+          copyMessage.reaction[userType].reactionType = undefined;
         }
-        await this.client.LSET(`messages:${conversationId}`, messageIndex, JSON.stringify(parsedMessage));
+        await this.client.LSET(`messages:${conversationId}`, messageIndex, JSON.stringify(copyMessage));
       }
       const updatedMessage = (await this.client.LINDEX(`messages:${conversationId}`, messageIndex)) as string;
       return Helpers.parseJson(updatedMessage) as IMessageData;

@@ -1,7 +1,18 @@
 import { Document, Types } from 'mongoose';
 
 import { AuthPayload } from '@auth/interfaces/auth.interface';
-import { IReaction } from '@reaction/interfaces/reaction.interface';
+import { ReactionType } from '@reaction/interfaces/reaction.interface';
+
+export interface IMessageReaction {
+  sender: {
+    username: string;
+    reactionType?: ReactionType;
+  };
+  receiver: {
+    username: string;
+    reactionType?: ReactionType;
+  };
+}
 
 export interface IMessageDocument extends Document {
   _id: Types.ObjectId;
@@ -18,7 +29,7 @@ export interface IMessageDocument extends Document {
   gifUrl: string;
   isRead: boolean;
   selectedImage: string;
-  reaction: IReaction[];
+  reaction: IMessageReaction;
   createdAt: Date;
   deleteForMe: boolean;
 }
@@ -38,7 +49,7 @@ export interface IMessageData {
   isRead: boolean;
   gifUrl: string;
   selectedImage: string;
-  reaction: IReaction[];
+  reaction: IMessageReaction;
   createdAt: Date | string;
   deleteForMe: boolean;
 }
@@ -73,6 +84,7 @@ export interface IChatJobData {
   senderName?: string;
   reaction?: string;
   type?: string;
+  userType?: 'sender' | 'receiver';
 }
 
 export interface ISenderReceiver {

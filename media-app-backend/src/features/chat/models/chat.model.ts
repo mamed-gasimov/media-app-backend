@@ -17,7 +17,16 @@ const messageSchema = new Schema({
   isRead: { type: Boolean, default: false },
   deleteForMe: { type: Boolean, default: false },
   selectedImage: { type: String, default: '' },
-  reaction: Array,
+  reaction: {
+    sender: {
+      username: { type: String, default: '' },
+      reactionType: { type: String, default: '' },
+    },
+    receiver: {
+      username: { type: String, default: '' },
+      reactionType: { type: String, default: '' },
+    },
+  },
   createdAt: { type: Date, default: Date.now },
 });
 

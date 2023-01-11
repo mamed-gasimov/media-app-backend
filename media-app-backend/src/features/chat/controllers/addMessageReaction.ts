@@ -10,6 +10,7 @@ import { addMessageReactionSchema } from '@chat/schemas/chat';
 import { ReactionType } from '@reaction/interfaces/reaction.interface';
 import { Helpers } from '@global/helpers/helpers';
 import { BadRequestError } from '@global/helpers/errorHandler';
+import { chatService } from '@service/db/chat.service';
 
 const chatCache = new ChatCache();
 
@@ -22,22 +23,36 @@ export class AddMessageReaction {
       throw new BadRequestError('Invalid request.');
     }
 
+    const messageObjectId = new Types.ObjectId(messageId);
+    const message = await chatService.getMessageById(messageObjectId);
+    if (!message) {
+      throw new BadRequestError('Message was not found');
+    }
+
+    let userType: 'sender' | 'receiver' | undefined;
+    if (message.senderUsername === req.currentUser!.username) {
+      userType = 'sender';
+    } else if (message.receiverUsername === req.currentUser!.username) {
+      userType = 'receiver';
+    }
+
     const updatedMessage = await chatCache.updateMessageReaction(
       `${conversationId}`,
       `${messageId}`,
       `${reaction as ReactionType}`,
-      `${req.currentUser!.username}`,
-      type
+      type,
+      userType
     );
 
     socketIOChatObject.emit('message reaction', updatedMessage);
     chatQueue.addChatJob('updateMessageReaction', {
-      messageId: new Types.ObjectId(messageId),
+      messageId: messageObjectId,
       senderName: req.currentUser!.username,
       reaction,
       type,
+      userType,
     });
-    res.status(HTTP_STATUS.OK).json({ message: 'Message reaction added' });
+    res.status(HTTP_STATUS.OK).json({ message: `Message reaction ${type === 'add' ? 'added' : 'removed'}` });
   }
 }
 

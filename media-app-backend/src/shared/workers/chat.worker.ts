@@ -44,8 +44,8 @@ class ChatWorker {
 
   async updateMessageReaction(jobQueue: Job, done: DoneCallback) {
     try {
-      const { messageId, senderName, reaction, type } = jobQueue.data;
-      await chatService.updateMessageReaction(messageId, senderName, reaction, type);
+      const { messageId, reaction, type, userType } = jobQueue.data;
+      await chatService.updateMessageReaction(messageId, reaction, type, userType);
       jobQueue.progress(100);
       done(null, jobQueue.data);
     } catch (error) {
