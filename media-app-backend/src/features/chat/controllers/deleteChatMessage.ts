@@ -39,7 +39,9 @@ export class DeleteChatMessage {
       type,
     });
 
-    res.status(HTTP_STATUS.OK).json({ message: 'Message marked as deleted' });
+    res
+      .status(HTTP_STATUS.OK)
+      .json({ message: type === 'deleteForMe' ? 'Message marked as deleted' : 'Message was deleted' });
   }
 }
 

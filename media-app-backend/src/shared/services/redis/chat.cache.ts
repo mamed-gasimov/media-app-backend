@@ -137,25 +137,38 @@ export class ChatCache extends BaseCache {
     }
   }
 
-  public async markMessageAsDeleted(senderId: string, receiverId: string, messageId: string, type: string) {
+  public async markMessageAsDeleted(
+    senderId: string,
+    receiverId: string,
+    messageId: string,
+    type: 'deleteForMe' | 'deleteForEveryone'
+  ) {
     try {
       if (!this.client.isOpen) {
         await this.client.connect();
       }
 
-      const { index, message, receiver } = await this.getMessage(senderId, receiverId, messageId);
+      const foundMessage = await this.getMessage(senderId, receiverId, messageId);
+
+      if (!foundMessage || !foundMessage?.message || foundMessage?.index === -1) {
+        return null;
+      }
+      const { index, message, receiver } = foundMessage;
       const chatItem = Helpers.parseJson(message) as IMessageData;
 
       if (type === 'deleteForMe') {
         chatItem.deleteForMe = true;
-      } else {
-        chatItem.deleteForMe = true;
-        chatItem.deleteForEveryone = true;
+        await this.client.LSET(`messages:${receiver.conversationId}`, index, JSON.stringify(chatItem));
+        const lastMessage = (await this.client.LINDEX(
+          `messages:${receiver.conversationId}`,
+          index
+        )) as string;
+        return Helpers.parseJson(lastMessage) as IMessageData;
+      } else if (type === 'deleteForEveryone') {
+        await this.client.LREM(`messages:${receiver.conversationId}`, index, JSON.stringify(chatItem));
       }
-      await this.client.LSET(`messages:${receiver.conversationId}`, index, JSON.stringify(chatItem));
 
-      const lastMessage = (await this.client.LINDEX(`messages:${receiver.conversationId}`, index)) as string;
-      return Helpers.parseJson(lastMessage) as IMessageData;
+      return null;
     } catch (error) {
       log.error(error);
       throw new ServerError('Server error. Try again.');

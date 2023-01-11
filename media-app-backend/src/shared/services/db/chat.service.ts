@@ -84,14 +84,11 @@ class ChatService {
     return messages;
   }
 
-  public async markMessageAsDeleted(messageId: string, type: string) {
+  public async markMessageAsDeleted(messageId: string, type: 'deleteForMe' | 'deleteForEveryone') {
     if (type === 'deleteForMe') {
       await MessageModel.updateOne({ _id: messageId }, { $set: { deleteForMe: true } }).exec();
-    } else {
-      await MessageModel.updateOne(
-        { _id: messageId },
-        { $set: { deleteForMe: true, deleteForEveryone: true } }
-      ).exec();
+    } else if (type === 'deleteForEveryone') {
+      await MessageModel.deleteOne({ _id: messageId }).exec();
     }
   }
 }
