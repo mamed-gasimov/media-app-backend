@@ -75,7 +75,6 @@ class AddChatMessage {
       selectedImage: fileUrl,
       reaction: [],
       createdAt: new Date(),
-      deleteForEveryone: false,
       deleteForMe: false,
     };
 

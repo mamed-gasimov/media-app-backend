@@ -21,7 +21,6 @@ export interface IMessageDocument extends Document {
   reaction: IReaction[];
   createdAt: Date;
   deleteForMe: boolean;
-  deleteForEveryone: boolean;
 }
 
 export interface IMessageData {
@@ -42,7 +41,6 @@ export interface IMessageData {
   reaction: IReaction[];
   createdAt: Date | string;
   deleteForMe: boolean;
-  deleteForEveryone: boolean;
 }
 
 export interface IMessageNotification {
