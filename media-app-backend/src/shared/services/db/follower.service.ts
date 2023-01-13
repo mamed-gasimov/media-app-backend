@@ -1,5 +1,4 @@
 import { Types } from 'mongoose';
-import { map } from 'lodash';
 
 import { FollowerModel } from '@follower/models/follower.model';
 import { UserModel } from '@user/models/user.model';
@@ -164,7 +163,7 @@ class FollowerService {
         },
       },
     ]);
-    return map(followee, (result) => result.followeeId.toString());
+    return followee.map((result) => result.followeeId.toString());
   }
 
   public async alreadyFollows(userId: string, followeeId: string) {

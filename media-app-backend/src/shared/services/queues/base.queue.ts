@@ -14,6 +14,7 @@ import { IFollowerJobData } from '@follower/interfaces/follower.interface';
 import { IBlockedUserJobData } from '@blocked/interfaces/blockedUsers.interface';
 import { INotificationJobData } from '@notification/interfaces/notification.interface';
 import { IFileImageJobData } from '@image/interfaces/image.interface';
+import { IChatJobData, IMessageData } from '@chat/interfaces/chat.interface';
 
 let bullAdapters: BullAdapter[] = [];
 
@@ -29,7 +30,9 @@ export type IBaseJobData =
   | IBlockedUserJobData
   | INotificationJobData
   | IFollowerJobData
-  | IFileImageJobData;
+  | IFileImageJobData
+  | IChatJobData
+  | IMessageData;
 
 export abstract class BaseQueue {
   queue: Queue.Queue;

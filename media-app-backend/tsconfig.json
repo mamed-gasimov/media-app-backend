@@ -36,6 +36,7 @@
       "@blocked/*": ["src/features/blocked/*"],
       "@notification/*": ["src/features/notifications/*"],
       "@image/*": ["src/features/images/*"],
+      "@chat/*": ["src/features/chat/*"],
       "@global/*": ["src/shared/globals/*"],
       "@service/*": ["src/shared/services/*"],
       "@socket/*": ["src/shared/sockets/*"],
