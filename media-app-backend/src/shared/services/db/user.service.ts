@@ -15,7 +15,7 @@ class UserService {
       { $unwind: '$authId' },
       { $project: this.aggregateProject() },
     ]);
-    return users[0];
+    return users[0] as IUserDocument | undefined;
   }
 
   public async findUserById(userId: string) {

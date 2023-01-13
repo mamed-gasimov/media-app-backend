@@ -63,10 +63,19 @@ export const chatMessage = {
   conversationId: '602854c81c9ca7939aaeba43',
   gifUrl: '',
   isRead: false,
-  receiverId: '60263f14648fed5246e322d9',
+  receiverId: '60263f14648fed5246e322d8',
   receiverUsername: 'Danny',
   receiverAvatarColor: '#9c27b0',
   receiverProfilePicture: 'http://place-hold.it/500x500',
+  selectedImage: '',
+};
+
+export const chatMessageBody = {
+  body: 'how are you?',
+  conversationId: '602854c81c9ca7939aaeba43',
+  gifUrl: '',
+  isRead: false,
+  receiverId: '60263f14648fed5246e322d8',
   selectedImage: '',
 };
 
