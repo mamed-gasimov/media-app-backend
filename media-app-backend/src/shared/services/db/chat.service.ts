@@ -117,7 +117,7 @@ class ChatService {
     }
   }
 
-  public async getMessageById(messageId: ObjectId) {
+  public async getMessageById(messageId: ObjectId): Promise<IMessageData | null> {
     return MessageModel.findOne({ _id: messageId });
   }
 }
