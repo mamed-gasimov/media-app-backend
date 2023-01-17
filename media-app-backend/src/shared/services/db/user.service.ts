@@ -1,6 +1,11 @@
-import mongoose from 'mongoose';
+import { Types } from 'mongoose';
 
-import { IUserDocument } from '@user/interfaces/user.interface';
+import {
+  IBasicInfo,
+  INotificationSettings,
+  ISocialLinks,
+  IUserDocument,
+} from '@user/interfaces/user.interface';
 import { UserModel } from '@user/models/user.model';
 
 class UserService {
@@ -10,7 +15,7 @@ class UserService {
 
   public async getUserById(userId: string) {
     const users: IUserDocument[] = await UserModel.aggregate([
-      { $match: { _id: new mongoose.Types.ObjectId(userId) } },
+      { $match: { _id: new Types.ObjectId(userId) } },
       { $lookup: { from: 'Auth', localField: 'authId', foreignField: '_id', as: 'authId' } },
       { $unwind: '$authId' },
       { $project: this.aggregateProject() },
@@ -26,14 +31,49 @@ class UserService {
     return UserModel.findOneAndUpdate({ _id: userId }, { $set: { bgImageId: '', bgImageVersion: '' } });
   }
 
+  public async getAllUsers(userId: string, skip: number, limit: number) {
+    const users: IUserDocument[] = await UserModel.aggregate([
+      { $match: { _id: { $ne: new Types.ObjectId(userId) } } },
+      { $skip: skip },
+      { $limit: limit },
+      { $sort: { createdAt: -1 } },
+      { $lookup: { from: 'Auth', localField: 'authId', foreignField: '_id', as: 'authId' } },
+      { $unwind: '$authId' },
+      { $project: this.aggregateProject() },
+    ]);
+    return users;
+  }
+
   public async getUserByAuthId(authId: string) {
     const users: IUserDocument[] = await UserModel.aggregate([
-      { $match: { authId: new mongoose.Types.ObjectId(authId) } },
+      { $match: { authId: new Types.ObjectId(authId) } },
       { $lookup: { from: 'Auth', localField: 'authId', foreignField: '_id', as: 'authId' } },
       { $unwind: '$authId' },
       { $project: this.aggregateProject() },
     ]);
     return users[0];
+  }
+
+  public async updateUserInfo(userId: string, info: IBasicInfo) {
+    await UserModel.updateOne(
+      { _id: userId },
+      {
+        $set: {
+          work: info['work'],
+          school: info['school'],
+          quote: info['quote'],
+          location: info['location'],
+        },
+      }
+    ).exec();
+  }
+
+  public async updateSocialLinks(userId: string, links: ISocialLinks) {
+    await UserModel.updateOne({ _id: userId }, { $set: { social: links } }).exec();
+  }
+
+  public async updateNotificationSettings(userId: string, settings: INotificationSettings) {
+    await UserModel.updateOne({ _id: userId }, { $set: { notifications: settings } }).exec();
   }
 
   private aggregateProject() {
