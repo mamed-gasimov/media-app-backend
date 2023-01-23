@@ -109,7 +109,7 @@ class BlockedUsers {
       alreadyFollowInDb = await followerService.alreadyFollows(`${firstUserId}`, secondUserId);
     }
 
-    if (alreadyFollow || (!followingsList.length && alreadyFollowInDb)) {
+    if (alreadyFollow || (!followingsList?.length && alreadyFollowInDb)) {
       await BlockedUsers.prototype.unfollowBlockedUser(firstUserId, secondUserId);
     }
   }

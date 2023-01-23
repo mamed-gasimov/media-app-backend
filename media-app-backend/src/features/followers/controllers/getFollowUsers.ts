@@ -17,7 +17,7 @@ class GetFollowUsers {
   public async userFollowings(req: Request, res: Response) {
     const userObjectId = new Types.ObjectId(req.currentUser!.userId);
     const cachedFollowees = await followerCache.getFollowersFromCache(`following:${req.currentUser!.userId}`);
-    const followings = cachedFollowees.length
+    const followings = cachedFollowees?.length
       ? cachedFollowees
       : await followerService.getFollowingsData(userObjectId);
     res.status(HTTP_STATUS.OK).json({ message: 'User followings', followings });
@@ -40,7 +40,7 @@ class GetFollowUsers {
 
     const userObjectId = new Types.ObjectId(userId);
     const cachedFollowers = await followerCache.getFollowersFromCache(`followers:${userId}`);
-    const followers = cachedFollowers.length
+    const followers = cachedFollowers?.length
       ? cachedFollowers
       : await followerService.getFollowersData(userObjectId);
     res.status(HTTP_STATUS.OK).json({ message: 'User followers', followers });

@@ -31,7 +31,7 @@ class UnfollowUser {
       alreadyFollowInDb = await followerService.alreadyFollows(`${req.currentUser?.userId}`, followerId);
     }
 
-    if (!alreadyFollow || (!followingsList.length && !alreadyFollowInDb)) {
+    if (!alreadyFollow || (!followingsList?.length && !alreadyFollowInDb)) {
       throw new BadRequestError('Already not following.');
     }
 

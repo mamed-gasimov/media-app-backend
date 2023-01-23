@@ -11,3 +11,15 @@ withCredentials: true
   "page": 1,
   "pageSize": 10
 }
+
+###
+GET {{baseUrl}}/{{urlPath}}/user/profile
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+###
+GET {{baseUrl}}/{{urlPath}}/users/<userId>
+Content-Type: application/json
+Accept: application/json
+withCredentials: true

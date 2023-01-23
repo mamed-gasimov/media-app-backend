@@ -2,6 +2,9 @@ import { Request, Response } from 'express';
 import { Types } from 'mongoose';
 import HTTP_STATUS from 'http-status-codes';
 
+import { Helpers } from '@global/helpers/helpers';
+import { joiValidation } from '@global/decorators/joiValidation.decorator';
+import { BadRequestError } from '@global/helpers/errorHandler';
 import { FollowerCache } from '@service/redis/follower.cache';
 import { PostCache } from '@service/redis/post.cache';
 import { UserCache } from '@service/redis/user.cache';
@@ -9,11 +12,9 @@ import { userService } from '@service/db/user.service';
 import { followerService } from '@service/db/follower.service';
 import { postService } from '@service/db/post.service';
 import { IAllUsers, IUserDocument } from '@user/interfaces/user.interface';
-import { IFollowerData } from '@follower/interfaces/follower.interface';
-import { Helpers } from '@global/helpers/helpers';
-import { IPostDocument } from '@post/interfaces/post.interface';
-import { joiValidation } from '@global/decorators/joiValidation.decorator';
 import { getUsersSchema } from '@user/schemas/userInfo';
+import { IFollowerData } from '@follower/interfaces/follower.interface';
+import { IPostDocument } from '@post/interfaces/post.interface';
 
 interface IUserAll {
   newSkip: number;
@@ -58,8 +59,18 @@ class GetUserProfiles {
 
   public async profileByUserId(req: Request, res: Response) {
     const { userId } = req.params;
-    const cachedUser = (await userCache.getUserFromCache(userId)) as IUserDocument;
-    const existingUser = cachedUser ? cachedUser : await userService.getUserById(userId);
+
+    if (!Helpers.checkValidObjectId(userId)) {
+      throw new BadRequestError('Invalid request');
+    }
+
+    const cachedUser = await userCache.getUserFromCache(userId);
+    const existingUser = cachedUser || (await userService.getUserById(userId));
+
+    if (!existingUser) {
+      throw new BadRequestError('User was not found');
+    }
+
     res
       .status(HTTP_STATUS.OK)
       .json({ message: 'Get user profile by id', user: existingUser as IUserDocument });
@@ -86,8 +97,12 @@ class GetUserProfiles {
     return totalUsers;
   }
 
-  private async followers(userId: string): Promise<IFollowerData[]> {
-    const cachedFollowers: IFollowerData[] = await followerCache.getFollowersFromCache(`followers:${userId}`);
+  private async followers(userId: string) {
+    const cachedFollowers = await followerCache.getFollowersFromCache(`followers:${userId}`);
+
+    if (!cachedFollowers || !cachedFollowers?.length) {
+      return null;
+    }
     const result = cachedFollowers.length
       ? cachedFollowers
       : await followerService.getFollowersData(new Types.ObjectId(userId));
