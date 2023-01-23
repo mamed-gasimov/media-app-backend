@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import mongoose from 'mongoose';
+import { Types } from 'mongoose';
 import HTTP_STATUS from 'http-status-codes';
 
 import { FollowerCache } from '@service/redis/follower.cache';
@@ -12,8 +12,8 @@ import { IAllUsers, IUserDocument } from '@user/interfaces/user.interface';
 import { IFollowerData } from '@follower/interfaces/follower.interface';
 import { Helpers } from '@global/helpers/helpers';
 import { IPostDocument } from '@post/interfaces/post.interface';
-
-const PAGE_SIZE = 12;
+import { joiValidation } from '@global/decorators/joiValidation.decorator';
+import { getUsersSchema } from '@user/schemas/userInfo';
 
 interface IUserAll {
   newSkip: number;
@@ -27,13 +27,25 @@ const userCache = new UserCache();
 const followerCache = new FollowerCache();
 
 class GetUserProfiles {
+  @joiValidation(getUsersSchema)
   public async all(req: Request, res: Response) {
-    const { page } = req.params;
-    const skip = (parseInt(page) - 1) * PAGE_SIZE;
-    const limit = PAGE_SIZE * parseInt(page);
+    const { page, pageSize } = req.body;
+
+    const skip = (page - 1) * pageSize;
+    const limit = pageSize * page;
     const newSkip = skip === 0 ? skip : skip + 1;
 
-    res.status(HTTP_STATUS.OK).json({ message: 'Get users', users: [] });
+    const allUsers = await GetUserProfiles.prototype.allUsers({
+      newSkip,
+      limit,
+      skip,
+      userId: `${req.currentUser!.userId}`,
+    });
+    const followers = await GetUserProfiles.prototype.followers(`${req.currentUser!.userId}`);
+
+    res
+      .status(HTTP_STATUS.OK)
+      .json({ message: 'Get users', users: allUsers.users, totalUsers: allUsers.totalUsers, followers });
   }
 
   public async currentUserProfile(req: Request, res: Response) {
@@ -51,6 +63,33 @@ class GetUserProfiles {
     res
       .status(HTTP_STATUS.OK)
       .json({ message: 'Get user profile by id', user: existingUser as IUserDocument });
+  }
+
+  private async allUsers({ newSkip, limit, skip, userId }: IUserAll): Promise<IAllUsers> {
+    let users;
+    let type = '';
+    const cachedUsers = (await userCache.getUsersFromCache(newSkip, limit, userId)) as IUserDocument[];
+    if (cachedUsers.length) {
+      type = 'redis';
+      users = cachedUsers;
+    } else {
+      type = 'mongodb';
+      users = await userService.getAllUsers(userId, skip, limit);
+    }
+    const totalUsers = await GetUserProfiles.prototype.usersCount(type);
+    return { users, totalUsers };
+  }
+
+  private async usersCount(type: string) {
+    return 0;
+  }
+
+  private async followers(userId: string): Promise<IFollowerData[]> {
+    const cachedFollowers: IFollowerData[] = await followerCache.getFollowersFromCache(`followers:${userId}`);
+    const result = cachedFollowers.length
+      ? cachedFollowers
+      : await followerService.getFollowersData(new Types.ObjectId(userId));
+    return result;
   }
 }
 

@@ -39,4 +39,15 @@ const notificationSettingsSchema = Joi.object().keys({
   follows: Joi.boolean().optional(),
 });
 
-export { basicInfoSchema, socialLinksSchema, changePasswordSchema, notificationSettingsSchema };
+const getUsersSchema = Joi.object().keys({
+  page: Joi.number().integer().positive().required(),
+  pageSize: Joi.number().integer().positive().required(),
+});
+
+export {
+  basicInfoSchema,
+  socialLinksSchema,
+  changePasswordSchema,
+  notificationSettingsSchema,
+  getUsersSchema,
+};
