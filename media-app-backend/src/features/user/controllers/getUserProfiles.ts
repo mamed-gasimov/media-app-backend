@@ -81,7 +81,9 @@ class GetUserProfiles {
   }
 
   private async usersCount(type: string) {
-    return 0;
+    const totalUsers =
+      type === 'redis' ? await userCache.getTotalUsersInCache() : await userService.getTotalUsersInDb();
+    return totalUsers;
   }
 
   private async followers(userId: string): Promise<IFollowerData[]> {

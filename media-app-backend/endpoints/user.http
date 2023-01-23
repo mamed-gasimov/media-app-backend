@@ -1,0 +1,13 @@
+@baseUrl = http://localhost:8000
+@urlPath = api
+
+###
+POST {{baseUrl}}/{{urlPath}}/users/all
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+{
+  "page": 1,
+  "pageSize": 10
+}

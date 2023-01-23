@@ -76,6 +76,11 @@ class UserService {
     await UserModel.updateOne({ _id: userId }, { $set: { notifications: settings } }).exec();
   }
 
+  public async getTotalUsersInDb() {
+    const totalCount = await UserModel.find({}).countDocuments();
+    return totalCount;
+  }
+
   private aggregateProject() {
     return {
       _id: 1,
