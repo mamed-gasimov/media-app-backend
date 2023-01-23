@@ -91,6 +91,34 @@ class GetUserProfiles {
     return { users, totalUsers };
   }
 
+  public async profileAndPosts(req: Request, res: Response) {
+    const { userId } = req.params;
+
+    if (!Helpers.checkValidObjectId(userId)) {
+      throw new BadRequestError('Invalid request');
+    }
+
+    const cachedUser = await userCache.getUserFromCache(userId);
+    const existingUser = cachedUser || (await userService.getUserById(userId));
+
+    if (!existingUser) {
+      throw new BadRequestError('User was not found');
+    }
+
+    const userName = Helpers.firstLetterUpperCase(existingUser.username as string);
+    const cachedUserPosts: IPostDocument[] = await postCache.getUserPostsFromCache(
+      'post',
+      parseInt(existingUser.uId as string, 10)
+    );
+    const userPosts: IPostDocument[] = cachedUserPosts.length
+      ? cachedUserPosts
+      : await postService.getPosts({ username: userName }, 0, 100, { createdAt: -1 });
+
+    res
+      .status(HTTP_STATUS.OK)
+      .json({ message: 'Get user profile and posts', user: existingUser, posts: userPosts });
+  }
+
   private async usersCount(type: string) {
     const totalUsers =
       type === 'redis' ? await userCache.getTotalUsersInCache() : await userService.getTotalUsersInDb();

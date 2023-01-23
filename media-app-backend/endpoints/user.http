@@ -23,3 +23,9 @@ GET {{baseUrl}}/{{urlPath}}/users/<userId>
 Content-Type: application/json
 Accept: application/json
 withCredentials: true
+
+###
+GET {{baseUrl}}/{{urlPath}}/user/posts/<userId>
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
