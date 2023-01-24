@@ -49,7 +49,7 @@ Accept: application/json
 withCredentials: true
 
 {
-  "currentPaassword": "",
+  "currentPassword": "",
   "newPassword": "",
   "confirmPassword": ""
 }

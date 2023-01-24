@@ -36,6 +36,11 @@ class UpdateUserInfo {
     if (newPassword !== confirmPassword) {
       throw new BadRequestError('Passwords do not match.');
     }
+
+    if (currentPassword === newPassword) {
+      throw new BadRequestError('Passwords are same');
+    }
+
     const existingUser = (await authService.getAuthUserByUsername(
       req.currentUser!.username
     )) as IAuthDocument;
@@ -61,7 +66,7 @@ class UpdateUserInfo {
       subject: 'Password update confirmation',
     });
     res.status(HTTP_STATUS.OK).json({
-      message: 'Password updated successfully. You will be redirected shortly to the login page.',
+      message: 'Password updated successfully',
     });
   }
 }
