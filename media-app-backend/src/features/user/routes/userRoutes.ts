@@ -2,6 +2,7 @@ import express, { Router } from 'express';
 
 import { authMiddleware } from '@global/helpers/authMiddleware';
 import { getUserProfiles } from '@user/controllers/getUserProfiles';
+import { searchUser } from '@user/controllers/searchUser';
 
 class UserRoutes {
   private router: Router;
@@ -24,6 +25,7 @@ class UserRoutes {
       authMiddleware.checkAuthentication,
       getUserProfiles.profileAndPosts
     );
+    this.router.get('/user/search/:query', authMiddleware.checkAuthentication, searchUser.user);
 
     return this.router;
   }

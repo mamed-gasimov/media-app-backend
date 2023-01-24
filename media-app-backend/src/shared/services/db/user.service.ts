@@ -3,11 +3,13 @@ import { Types } from 'mongoose';
 import {
   IBasicInfo,
   INotificationSettings,
+  ISearchUser,
   ISocialLinks,
   IUserDocument,
 } from '@user/interfaces/user.interface';
 import { UserModel } from '@user/models/user.model';
 import { followerService } from '@service/db/follower.service';
+import { AuthModel } from '@auth/models/auth.model';
 
 class UserService {
   public async addUserData(data: IUserDocument) {
@@ -113,6 +115,24 @@ class UserService {
       }
     }
     return randomUsers;
+  }
+
+  public async searchUsers(regex: RegExp): Promise<ISearchUser[]> {
+    const users = await AuthModel.aggregate([
+      { $match: { username: regex } },
+      { $lookup: { from: 'User', localField: '_id', foreignField: 'authId', as: 'user' } },
+      { $unwind: '$user' },
+      {
+        $project: {
+          _id: '$user._id',
+          username: 1,
+          email: 1,
+          avatarColor: 1,
+          profilePicture: 1,
+        },
+      },
+    ]);
+    return users;
   }
 
   private aggregateProject() {
