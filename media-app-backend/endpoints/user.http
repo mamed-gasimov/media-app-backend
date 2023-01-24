@@ -41,3 +41,15 @@ GET {{baseUrl}}/{{urlPath}}/user/posts/<userId>
 Content-Type: application/json
 Accept: application/json
 withCredentials: true
+
+###
+PUT {{baseUrl}}/{{urlPath}}/user/change-password
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+{
+  "currentPaassword": "",
+  "newPassword": "",
+  "confirmPassword": ""
+}

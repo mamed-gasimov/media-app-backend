@@ -3,6 +3,7 @@ import express, { Router } from 'express';
 import { authMiddleware } from '@global/helpers/authMiddleware';
 import { getUserProfiles } from '@user/controllers/getUserProfiles';
 import { searchUser } from '@user/controllers/searchUser';
+import { updateUserInfo } from '@user/controllers/updateUserInfo';
 
 class UserRoutes {
   private router: Router;
@@ -26,6 +27,8 @@ class UserRoutes {
       getUserProfiles.profileAndPosts
     );
     this.router.get('/user/search/:query', authMiddleware.checkAuthentication, searchUser.user);
+
+    this.router.put('/user/change-password', authMiddleware.checkAuthentication, updateUserInfo.password);
 
     return this.router;
   }
