@@ -13,13 +13,19 @@ withCredentials: true
 }
 
 ###
-GET {{baseUrl}}/{{urlPath}}/user/profile
+GET {{baseUrl}}/{{urlPath}}/users/<userId>
 Content-Type: application/json
 Accept: application/json
 withCredentials: true
 
 ###
-GET {{baseUrl}}/{{urlPath}}/users/<userId>
+GET {{baseUrl}}/{{urlPath}}/users/suggestions
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+###
+GET {{baseUrl}}/{{urlPath}}/user/profile
 Content-Type: application/json
 Accept: application/json
 withCredentials: true

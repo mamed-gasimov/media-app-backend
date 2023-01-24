@@ -12,6 +12,11 @@ class UserRoutes {
 
   public routes(): Router {
     this.router.post('/users/all', authMiddleware.checkAuthentication, getUserProfiles.all);
+    this.router.get(
+      '/users/suggestions',
+      authMiddleware.checkAuthentication,
+      getUserProfiles.randomUserSuggestions
+    );
     this.router.get('/users/:userId', authMiddleware.checkAuthentication, getUserProfiles.profileByUserId);
     this.router.get('/user/profile', authMiddleware.checkAuthentication, getUserProfiles.currentUserProfile);
     this.router.get(

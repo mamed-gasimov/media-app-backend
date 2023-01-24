@@ -13,7 +13,6 @@ import { followerService } from '@service/db/follower.service';
 import { postService } from '@service/db/post.service';
 import { IAllUsers, IUserDocument } from '@user/interfaces/user.interface';
 import { getUsersSchema } from '@user/schemas/userInfo';
-import { IFollowerData } from '@follower/interfaces/follower.interface';
 import { IPostDocument } from '@post/interfaces/post.interface';
 
 interface IUserAll {
@@ -76,21 +75,6 @@ class GetUserProfiles {
       .json({ message: 'Get user profile by id', user: existingUser as IUserDocument });
   }
 
-  private async allUsers({ newSkip, limit, skip, userId }: IUserAll): Promise<IAllUsers> {
-    let users;
-    let type = '';
-    const cachedUsers = (await userCache.getUsersFromCache(newSkip, limit, userId)) as IUserDocument[];
-    if (cachedUsers.length) {
-      type = 'redis';
-      users = cachedUsers;
-    } else {
-      type = 'mongodb';
-      users = await userService.getAllUsers(userId, skip, limit);
-    }
-    const totalUsers = await GetUserProfiles.prototype.usersCount(type);
-    return { users, totalUsers };
-  }
-
   public async profileAndPosts(req: Request, res: Response) {
     const { userId } = req.params;
 
@@ -117,6 +101,36 @@ class GetUserProfiles {
     res
       .status(HTTP_STATUS.OK)
       .json({ message: 'Get user profile and posts', user: existingUser, posts: userPosts });
+  }
+
+  public async randomUserSuggestions(req: Request, res: Response) {
+    let randomUsers: IUserDocument[] = [];
+    const cachedUsers: IUserDocument[] = await userCache.getRandomUsersFromCache(
+      `${req.currentUser!.userId}`,
+      req.currentUser!.username
+    );
+    if (cachedUsers.length) {
+      randomUsers = [...cachedUsers];
+    } else {
+      const users = await userService.getRandomUsers(req.currentUser!.userId);
+      randomUsers = [...users];
+    }
+    res.status(HTTP_STATUS.OK).json({ message: 'User suggestions', users: randomUsers });
+  }
+
+  private async allUsers({ newSkip, limit, skip, userId }: IUserAll): Promise<IAllUsers> {
+    let users;
+    let type = '';
+    const cachedUsers = (await userCache.getUsersFromCache(newSkip, limit, userId)) as IUserDocument[];
+    if (cachedUsers.length) {
+      type = 'redis';
+      users = cachedUsers;
+    } else {
+      type = 'mongodb';
+      users = await userService.getAllUsers(userId, skip, limit);
+    }
+    const totalUsers = await GetUserProfiles.prototype.usersCount(type);
+    return { users, totalUsers };
   }
 
   private async usersCount(type: string) {

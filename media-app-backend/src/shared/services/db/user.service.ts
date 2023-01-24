@@ -7,6 +7,7 @@ import {
   IUserDocument,
 } from '@user/interfaces/user.interface';
 import { UserModel } from '@user/models/user.model';
+import { followerService } from '@service/db/follower.service';
 
 class UserService {
   public async addUserData(data: IUserDocument) {
@@ -79,6 +80,39 @@ class UserService {
   public async getTotalUsersInDb() {
     const totalCount = await UserModel.find({}).countDocuments();
     return totalCount;
+  }
+
+  public async getRandomUsers(userId: string) {
+    const randomUsers: IUserDocument[] = [];
+    const users: IUserDocument[] = await UserModel.aggregate([
+      { $match: { _id: { $ne: new Types.ObjectId(userId) } } },
+      { $lookup: { from: 'Auth', localField: 'authId', foreignField: '_id', as: 'authId' } },
+      { $unwind: '$authId' },
+      { $sample: { size: 10 } },
+      {
+        $addFields: {
+          username: '$authId.username',
+          email: '$authId.email',
+          avatarColor: '$authId.avatarColor',
+          uId: '$authId.uId',
+          createdAt: '$authId.createdAt',
+        },
+      },
+      {
+        $project: {
+          authId: 0,
+          __v: 0,
+        },
+      },
+    ]);
+    const followers = await followerService.getFolloweesIds(`${userId}`);
+    for (const user of users) {
+      const followerIndex = followers.indexOf(user._id.toString());
+      if (followerIndex === -1) {
+        randomUsers.push(user);
+      }
+    }
+    return randomUsers;
   }
 
   private aggregateProject() {
