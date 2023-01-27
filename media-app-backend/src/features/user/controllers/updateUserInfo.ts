@@ -11,13 +11,46 @@ import { authService } from '@service/db/auth.service';
 import { userService } from '@service/db/user.service';
 import { emailQueue } from '@service/queues/email.queue';
 import { resetPasswordTemplate } from '@service/emails/templates/resetPassword/resetPasswordTemplate';
-import { changePasswordSchema, notificationSettingsSchema } from '@user/schemas/userInfo';
+import {
+  basicInfoSchema,
+  changePasswordSchema,
+  socialLinksSchema,
+  notificationSettingsSchema,
+} from '@user/schemas/userInfo';
 import { IResetPasswordParams } from '@user/interfaces/user.interface';
 import { IAuthDocument } from '@auth/interfaces/auth.interface';
 
 const userCache = new UserCache();
 
 class UpdateUserInfo {
+  @joiValidation(basicInfoSchema)
+  public async info(req: Request, res: Response) {
+    const basicInfo = {
+      quote: req.body.quote as string,
+      work: req.body.work as string,
+      school: req.body.school as string,
+      location: req.body.location as string,
+    };
+    for (const [key, value] of Object.entries(basicInfo)) {
+      await userCache.updateSingleUserItemInCache(`${req.currentUser!.userId}`, key, `${value}`);
+    }
+    userQueue.addUserJob('updateBasicInfoInDb', {
+      key: `${req.currentUser!.userId}`,
+      value: basicInfo,
+    });
+    res.status(HTTP_STATUS.OK).json({ message: 'Updated successfully' });
+  }
+
+  @joiValidation(socialLinksSchema)
+  public async social(req: Request, res: Response) {
+    await userCache.updateSingleUserItemInCache(`${req.currentUser!.userId}`, 'social', req.body);
+    userQueue.addUserJob('updateSocialLinksInDb', {
+      key: `${req.currentUser!.userId}`,
+      value: req.body,
+    });
+    res.status(HTTP_STATUS.OK).json({ message: 'Updated successfully' });
+  }
+
   @joiValidation(notificationSettingsSchema)
   public async notification(req: Request, res: Response) {
     await userCache.updateSingleUserItemInCache(`${req.currentUser!.userId}`, 'notifications', req.body);

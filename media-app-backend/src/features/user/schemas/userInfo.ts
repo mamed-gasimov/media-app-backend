@@ -14,6 +14,13 @@ const socialLinksSchema = Joi.object().keys({
   youtube: Joi.string().optional().allow(null, ''),
 });
 
+const notificationSettingsSchema = Joi.object().keys({
+  messages: Joi.boolean().optional(),
+  reactions: Joi.boolean().optional(),
+  comments: Joi.boolean().optional(),
+  follows: Joi.boolean().optional(),
+});
+
 const changePasswordSchema = Joi.object().keys({
   currentPassword: Joi.string().required().min(8).max(20).messages({
     'string.base': 'Password should be a type of string',
@@ -32,13 +39,6 @@ const changePasswordSchema = Joi.object().keys({
   }),
 });
 
-const notificationSettingsSchema = Joi.object().keys({
-  messages: Joi.boolean().optional(),
-  reactions: Joi.boolean().optional(),
-  comments: Joi.boolean().optional(),
-  follows: Joi.boolean().optional(),
-});
-
 const getUsersSchema = Joi.object().keys({
   page: Joi.number().integer().positive().required(),
   pageSize: Joi.number().integer().positive().required(),
@@ -47,7 +47,7 @@ const getUsersSchema = Joi.object().keys({
 export {
   basicInfoSchema,
   socialLinksSchema,
-  changePasswordSchema,
   notificationSettingsSchema,
+  changePasswordSchema,
   getUsersSchema,
 };
