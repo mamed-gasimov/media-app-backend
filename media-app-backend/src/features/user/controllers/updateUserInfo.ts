@@ -11,56 +11,72 @@ import { authService } from '@service/db/auth.service';
 import { userService } from '@service/db/user.service';
 import { emailQueue } from '@service/queues/email.queue';
 import { resetPasswordTemplate } from '@service/emails/templates/resetPassword/resetPasswordTemplate';
-import {
-  basicInfoSchema,
-  changePasswordSchema,
-  socialLinksSchema,
-  notificationSettingsSchema,
-} from '@user/schemas/userInfo';
+import { changePasswordSchema, userProfileInfoSchema } from '@user/schemas/userInfo';
 import { IResetPasswordParams } from '@user/interfaces/user.interface';
 import { IAuthDocument } from '@auth/interfaces/auth.interface';
 
 const userCache = new UserCache();
 
 class UpdateUserInfo {
-  @joiValidation(basicInfoSchema)
-  public async info(req: Request, res: Response) {
-    const basicInfo = {
-      quote: req.body.quote as string,
-      work: req.body.work as string,
-      school: req.body.school as string,
-      location: req.body.location as string,
-    };
-    for (const [key, value] of Object.entries(basicInfo)) {
-      await userCache.updateSingleUserItemInCache(`${req.currentUser!.userId}`, key, `${value}`);
+  @joiValidation(userProfileInfoSchema)
+  public async updateProfileInfo(req: Request, res: Response) {
+    const { social, notifications, quote, work, school, location } = req.body;
+
+    const currentUserId = req.currentUser!.userId;
+    const user = await userService.getUserById(currentUserId);
+
+    if (!user) {
+      throw new BadRequestError('Something went wrong. Please log in again.');
     }
-    userQueue.addUserJob('updateBasicInfoInDb', {
-      key: `${req.currentUser!.userId}`,
-      value: basicInfo,
-    });
-    res.status(HTTP_STATUS.OK).json({ message: 'Updated successfully' });
-  }
 
-  @joiValidation(socialLinksSchema)
-  public async social(req: Request, res: Response) {
-    await userCache.updateSingleUserItemInCache(`${req.currentUser!.userId}`, 'social', req.body);
-    userQueue.addUserJob('updateSocialLinksInDb', {
-      key: `${req.currentUser!.userId}`,
-      value: req.body,
-    });
-    res.status(HTTP_STATUS.OK).json({ message: 'Updated successfully' });
-  }
+    const basicInfo = {
+      quote: (quote as string) || user!.quote,
+      work: (work as string) || user!.work,
+      school: (school as string) || user!.school,
+      location: (location as string) || user!.location,
+    };
 
-  @joiValidation(notificationSettingsSchema)
-  public async notification(req: Request, res: Response) {
-    await userCache.updateSingleUserItemInCache(`${req.currentUser!.userId}`, 'notifications', req.body);
-    userQueue.addUserJob('updateNotificationSettings', {
-      key: `${req.currentUser!.userId}`,
-      value: req.body,
-    });
-    res
-      .status(HTTP_STATUS.OK)
-      .json({ message: 'Notification settings updated successfully', settings: req.body });
+    const notificationSettings = {
+      messages: notifications?.messages ?? user!.notifications.messages,
+      reactions: notifications?.reactions ?? user!.notifications.reactions,
+      comments: notifications?.comments ?? user!.notifications.comments,
+      follows: notifications?.follows ?? user!.notifications.follows,
+    };
+
+    const socialLinks = {
+      instagram: (social?.instagram as string) || user!.social.instagram,
+      twitter: (social?.twitter as string) || user!.social.twitter,
+      facebook: (social?.facebook as string) || user!.social.facebook,
+      youtube: (social?.youtube as string) || user!.social.youtube,
+    };
+
+    if (work || quote || school || location) {
+      for (const [key, value] of Object.entries(basicInfo)) {
+        await userCache.updateSingleUserItemInCache(`${currentUserId}`, key, `${value}`);
+      }
+      userQueue.addUserJob('updateBasicInfoInDb', {
+        key: `${currentUserId}`,
+        value: basicInfo,
+      });
+    }
+
+    if (social) {
+      await userCache.updateSingleUserItemInCache(`${currentUserId}`, 'social', socialLinks);
+      userQueue.addUserJob('updateSocialLinksInDb', {
+        key: `${currentUserId}`,
+        value: socialLinks,
+      });
+    }
+
+    if (notifications) {
+      await userCache.updateSingleUserItemInCache(`${currentUserId}`, 'notifications', notificationSettings);
+      userQueue.addUserJob('updateNotificationSettings', {
+        key: `${currentUserId}`,
+        value: notificationSettings,
+      });
+    }
+
+    res.status(HTTP_STATUS.OK).json({ message: 'User profile was updated successfully' });
   }
 
   @joiValidation(changePasswordSchema)

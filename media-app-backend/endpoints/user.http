@@ -55,7 +55,7 @@ withCredentials: true
 }
 
 ###
-PUT {{baseUrl}}/{{urlPath}}/user/basic-info
+PUT {{baseUrl}}/{{urlPath}}/user/profile
 content-type: application/json
 Accept: 'application/json'
 withCredentials: true
@@ -64,31 +64,17 @@ withCredentials: true
   "quote": "",
   "work": "",
   "school": "",
-  "location": ""
-}
-
-###
-PUT {{baseUrl}}/{{urlPath}}/user/social-links
-content-type: application/json
-Accept: 'application/json'
-withCredentials: true
-
-{
-  "instagram": "",
-  "twitter": "",
-  "facebook": "",
-  "youtube": ""
-}
-
-###
-PUT {{baseUrl}}/{{urlPath}}/user/notification-settings
-content-type: application/json
-Accept: 'application/json'
-withCredentials: true
-
-{
-  "messages": true,
-  "reactions": true,
-  "comments": true,
-  "follows": true
+  "location": "",
+  "social": {
+    "instagram": "",
+    "twitter": "",
+    "facebook": "",
+    "youtube": ""
+  },
+  "notifications": {
+    "messages": true,
+    "reactions": true,
+    "comments": true,
+    "follows": true
+  }
 }

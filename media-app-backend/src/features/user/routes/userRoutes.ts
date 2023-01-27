@@ -29,13 +29,7 @@ class UserRoutes {
     this.router.get('/user/search/:query', authMiddleware.checkAuthentication, searchUser.user);
 
     this.router.put('/user/change-password', authMiddleware.checkAuthentication, updateUserInfo.password);
-    this.router.put('/user/basic-info', authMiddleware.checkAuthentication, updateUserInfo.info);
-    this.router.put('/user/social-links', authMiddleware.checkAuthentication, updateUserInfo.social);
-    this.router.put(
-      '/user/notification-settings',
-      authMiddleware.checkAuthentication,
-      updateUserInfo.notification
-    );
+    this.router.put('/user/profile', authMiddleware.checkAuthentication, updateUserInfo.updateProfileInfo);
 
     return this.router;
   }
