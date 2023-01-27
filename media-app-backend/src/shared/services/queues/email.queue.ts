@@ -32,6 +32,11 @@ class EmailQueue extends BaseQueue {
       5,
       emailWorker.addNotificationEmail as ProcessPromiseFunction<IBaseJobData>
     );
+    this.processJob(
+      'changePassword',
+      5,
+      emailWorker.addNotificationEmail as ProcessPromiseFunction<IBaseJobData>
+    );
   }
 
   public addEmailJob(name: string, data: IEmailJob) {

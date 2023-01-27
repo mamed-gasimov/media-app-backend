@@ -12,6 +12,7 @@ import { blockedUsersRoutes } from '@blocked/routes/blockedUsersRoutes';
 import { notificationRoutes } from '@notification/routes/notificationRoutes';
 import { imageRoutes } from '@image/routes/imageRoutes';
 import { chatRoutes } from '@chat/routes/chatRoutes';
+import { userRoutes } from '@user/routes/userRoutes';
 
 const BASE_PATH = '/api';
 
@@ -30,6 +31,7 @@ const applicationRoutes = (app: Application) => {
     app.use(BASE_PATH, authMiddleware.verifyUser, notificationRoutes.routes());
     app.use(BASE_PATH, authMiddleware.verifyUser, imageRoutes.routes());
     app.use(BASE_PATH, authMiddleware.verifyUser, chatRoutes.routes());
+    app.use(BASE_PATH, authMiddleware.verifyUser, userRoutes.routes());
   };
 
   routes();

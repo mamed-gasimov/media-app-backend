@@ -3,6 +3,7 @@ import HTTP_STATUS from 'http-status-codes';
 
 import { userService } from '@service/db/user.service';
 import { UserCache } from '@service/redis/user.cache';
+import { BadRequestError } from '@global/helpers/errorHandler';
 
 const userCache = new UserCache();
 
@@ -15,6 +16,10 @@ class CurrentUser {
     const cachedUser = await userCache.getUserFromCache(`${req.currentUser!.userId}`);
 
     const existingUser = cachedUser || (await userService.getUserById(`${req.currentUser!.userId}`));
+
+    if (!existingUser) {
+      throw new BadRequestError('User was not found');
+    }
 
     if (Object.keys(existingUser).length) {
       isUser = true;

@@ -74,6 +74,11 @@ export class FollowerCache extends BaseCache {
       const list: IFollowerData[] = [];
       for (const item of response) {
         const user = await userCache.getUserFromCache(item);
+
+        if (!user) {
+          return null;
+        }
+
         const data: IFollowerData = {
           _id: new mongoose.Types.ObjectId(user._id),
           username: user.username!,
