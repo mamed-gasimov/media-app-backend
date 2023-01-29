@@ -3,6 +3,7 @@ import compression from 'compression';
 import cookieSession from 'cookie-session';
 import cors from 'cors';
 import { Application, json, NextFunction, Request, Response, urlencoded } from 'express';
+import apiStats from 'swagger-stats';
 import 'express-async-errors';
 import helmet from 'helmet';
 import hpp from 'hpp';
@@ -35,6 +36,7 @@ export class AppServer {
     this.securityMiddleware(this.app);
     this.standardMiddleware(this.app);
     this.routeMiddleware(this.app);
+    this.apiMonitoring(this.app);
     this.globalErrorHandler(this.app);
     this.startServer(this.app);
   }
@@ -68,6 +70,14 @@ export class AppServer {
 
   private routeMiddleware(app: Application) {
     applicationRoutes(app);
+  }
+
+  private apiMonitoring(app: Application) {
+    app.use(
+      apiStats.getMiddleware({
+        uriPath: '/api-monitoring',
+      })
+    );
   }
 
   private globalErrorHandler(app: Application) {
