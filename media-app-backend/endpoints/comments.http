@@ -1,0 +1,32 @@
+@baseUrl = http://localhost:8000
+@urlPath = api
+
+###
+POST {{baseUrl}}/{{urlPath}}/post/comment
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+{
+  "postId": "",
+  "comment": "",
+  "profilePicture": "<cloudinary-user-profile-picture-url>"
+}
+
+###
+GET {{baseUrl}}/{{urlPath}}/post/<postId>/comments
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+###
+GET {{baseUrl}}/{{urlPath}}/post/<postId>/commentsnames
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+###
+GET {{baseUrl}}/{{urlPath}}/post/<postId>/comments/<commentId>
+Content-Type: application/json
+Accept: application/json
+withCredentials: true

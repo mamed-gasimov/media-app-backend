@@ -1,21 +1,29 @@
-import { Application, json, urlencoded, Request, Response, NextFunction } from 'express';
-import http from 'http';
-import cors from 'cors';
-import helmet from 'helmet';
-import hpp from 'hpp';
+import { createAdapter } from '@socket.io/redis-adapter';
 import compression from 'compression';
 import cookieSession from 'cookie-session';
-import HTTP_STATUS from 'http-status-codes';
-import { Server } from 'socket.io';
-import { createClient } from 'redis';
-import { createAdapter } from '@socket.io/redis-adapter';
+import cors from 'cors';
+import { Application, json, NextFunction, Request, Response, urlencoded } from 'express';
+import apiStats from 'swagger-stats';
 import 'express-async-errors';
-import { config } from './config';
-import applicationRoutes from './routes';
-import { CustomError, IErrorResponse } from './shared/globals/helpers/errorHandler';
+import helmet from 'helmet';
+import hpp from 'hpp';
+import http from 'http';
+import HTTP_STATUS from 'http-status-codes';
+import { createClient } from 'redis';
+import { Server } from 'socket.io';
+
+import { CustomError, IErrorResponse } from '@global/helpers/errorHandler';
+import { config } from '@root/config';
+import applicationRoutes from '@root/routes';
+import { SocketIOPostHandler } from '@socket/post.sockets';
+import { SocketIOFollowerHandler } from '@socket/follower.sockets';
+import { SocketIOUserHandler } from '@socket/user.sockets';
+import { SocketIONotificationHandler } from '@socket/notification.sockets';
+import { SocketIOImageHandler } from '@socket/image.sockets';
+import { SocketIOChatHandler } from '@socket/chat.sockets';
 
 const SERVER_PORT = 8000;
-const log = config.createLogger('setup server');
+const log = config.createLogger('server');
 
 export class AppServer {
   private app: Application;
@@ -24,15 +32,16 @@ export class AppServer {
     this.app = app;
   }
 
-  public start(): void {
+  public start() {
     this.securityMiddleware(this.app);
     this.standardMiddleware(this.app);
     this.routeMiddleware(this.app);
+    this.apiMonitoring(this.app);
     this.globalErrorHandler(this.app);
     this.startServer(this.app);
   }
 
-  private securityMiddleware(app: Application): void {
+  private securityMiddleware(app: Application) {
     app.use(
       cookieSession({
         name: 'session',
@@ -53,17 +62,25 @@ export class AppServer {
     );
   }
 
-  private standardMiddleware(app: Application): void {
+  private standardMiddleware(app: Application) {
     app.use(compression());
     app.use(json({ limit: '50mb' }));
     app.use(urlencoded({ extended: true, limit: '50mb' }));
   }
 
-  private routeMiddleware(app: Application): void {
+  private routeMiddleware(app: Application) {
     applicationRoutes(app);
   }
 
-  private globalErrorHandler(app: Application): void {
+  private apiMonitoring(app: Application) {
+    app.use(
+      apiStats.getMiddleware({
+        uriPath: '/api-monitoring',
+      })
+    );
+  }
+
+  private globalErrorHandler(app: Application) {
     app.all('*', (req: Request, res: Response) => {
       res.status(HTTP_STATUS.NOT_FOUND).json({ message: `${req.originalUrl} is not found!` });
     });
@@ -77,7 +94,10 @@ export class AppServer {
     });
   }
 
-  private async startServer(app: Application): Promise<void> {
+  private async startServer(app: Application) {
+    if (!config.JWT_TOKEN) {
+      throw new Error('JWT_TOKEN must be provided');
+    }
     try {
       const httpServer = new http.Server(app);
       const socketIO = await this.createSocketIO(httpServer);
@@ -103,7 +123,8 @@ export class AppServer {
     return io;
   }
 
-  private startHttpServer(httpServer: http.Server): void {
+  private startHttpServer(httpServer: http.Server) {
+    log.info(`Worker with process id of ${process.pid} has started...`);
     log.info(`Server has started with process ${process.pid}.`);
 
     httpServer.listen(SERVER_PORT, () => {
@@ -111,7 +132,19 @@ export class AppServer {
     });
   }
 
-  private socketIOConnections(io: Server): void {
-    return;
+  private socketIOConnections(io: Server) {
+    const socketIOPostHandler = new SocketIOPostHandler(io);
+    const socketIOFollowerHandler = new SocketIOFollowerHandler(io);
+    const socketIOUserHandler = new SocketIOUserHandler(io);
+    const socketIOChatHandler = new SocketIOChatHandler(io);
+    const socketIONotificationHandler = new SocketIONotificationHandler();
+    const socketIOImageHandler = new SocketIOImageHandler();
+
+    socketIOPostHandler.listen();
+    socketIOFollowerHandler.listen();
+    socketIOUserHandler.listen();
+    socketIOChatHandler.listen();
+    socketIONotificationHandler.listen(io);
+    socketIOImageHandler.listen(io);
   }
 }

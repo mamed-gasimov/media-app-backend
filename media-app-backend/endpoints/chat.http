@@ -1,0 +1,85 @@
+@baseUrl = http://localhost:8000
+@urlPath = api
+
+###
+GET {{baseUrl}}/{{urlPath}}/chat/conversation-list
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+###
+GET {{baseUrl}}/{{urlPath}}/chat/messages/<receiverId>
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+###
+POST {{baseUrl}}/{{urlPath}}/chat/message
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+{
+  "conversationId": "",
+  "receiverId": "",
+  "body": "",
+  "gifUrl": "",
+  "isRead": false,
+  "selectedImage": ""
+}
+
+###
+POST {{baseUrl}}/{{urlPath}}/chat/users
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+{
+  "receiverId": ""
+}
+
+###
+PUT {{baseUrl}}/{{urlPath}}/chat/message
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+{
+  "receiverId": ""
+}
+
+###
+PUT {{baseUrl}}/{{urlPath}}/chat/message/reaction
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+{
+  "conversationId": "",
+  "messageId": "",
+  "reaction": "",
+  "type": ""
+}
+
+###
+DELETE {{baseUrl}}/{{urlPath}}/chat/users
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+{
+  "receiverId": ""
+}
+
+###
+DELETE {{baseUrl}}/{{urlPath}}/chat/message
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+# For this endpoint, the type is either deleteForMe or deleteForEveryone
+
+{
+  "receiverId": "",
+  "messageId": "",
+  "type": ""
+}

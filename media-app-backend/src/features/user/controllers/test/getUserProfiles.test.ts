@@ -1,0 +1,201 @@
+import { authMockRequest, authMockResponse, authUserPayload } from '@root/mocks/auth.mock';
+import { UserCache } from '@service/redis/user.cache';
+import { FollowerCache } from '@service/redis/follower.cache';
+import { existingUser } from '@root/mocks/user.mock';
+import { getUserProfiles } from '@user/controllers/getUserProfiles';
+import { PostCache } from '@service/redis/post.cache';
+import { postMockData } from '@root/mocks/post.mock';
+import { mockFollowerData } from '@root/mocks/followers.mock';
+import { userService } from '@service/db/user.service';
+import { postService } from '@service/db/post.service';
+import { Helpers } from '@global/helpers/helpers';
+
+jest.useFakeTimers();
+jest.mock('@service/queues/base.queue');
+jest.mock('@service/redis/post.cache');
+jest.mock('@service/redis/follower.cache');
+jest.mock('@service/redis/user.cache');
+jest.mock('@service/db/user.service');
+jest.mock('@service/db/follower.service');
+
+describe('Get User Profiles', () => {
+  beforeEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  afterEach(async () => {
+    jest.clearAllMocks();
+    jest.clearAllTimers();
+  });
+
+  describe('all', () => {
+    it('should send success json response if users in cache', async () => {
+      const req = authMockRequest({}, { page: 1, pageSize: 1 }, authUserPayload);
+      const res = authMockResponse();
+      jest.spyOn(UserCache.prototype, 'getUsersFromCache').mockResolvedValue([existingUser]);
+      jest.spyOn(UserCache.prototype, 'getTotalUsersInCache').mockResolvedValue(1);
+      jest.spyOn(FollowerCache.prototype, 'getFollowersFromCache').mockResolvedValue([mockFollowerData]);
+      await getUserProfiles.all(req, res);
+      expect(FollowerCache.prototype.getFollowersFromCache).toHaveBeenCalledWith(
+        `followers:${req.currentUser!.userId}`
+      );
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Get users',
+        users: [existingUser],
+        followers: [mockFollowerData],
+        totalUsers: 1,
+      });
+    });
+  });
+
+  describe('profile', () => {
+    it('should send success json response if user in cache', async () => {
+      const req = authMockRequest({}, {}, authUserPayload);
+      const res = authMockResponse();
+      jest.spyOn(UserCache.prototype, 'getUserFromCache').mockResolvedValue(existingUser);
+      await getUserProfiles.currentUserProfile(req, res);
+      expect(UserCache.prototype.getUserFromCache).toHaveBeenCalledWith(`${req.currentUser?.userId}`);
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Get user profile',
+        user: existingUser,
+      });
+    });
+
+    it('should send success json response if user in database', async () => {
+      const req = authMockRequest({}, {}, authUserPayload);
+      const res = authMockResponse();
+      jest.spyOn(UserCache.prototype, 'getUserFromCache').mockResolvedValue(null);
+      jest.spyOn(userService, 'getUserById').mockResolvedValue(existingUser);
+
+      await getUserProfiles.currentUserProfile(req, res);
+      expect(userService.getUserById).toHaveBeenCalledWith(`${req.currentUser?.userId}`);
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Get user profile',
+        user: existingUser,
+      });
+    });
+  });
+
+  describe('profileAndPosts', () => {
+    it('should send success json response if user in cache', async () => {
+      const req = authMockRequest({}, {}, authUserPayload, {
+        username: existingUser.username,
+        userId: existingUser._id,
+        uId: existingUser.uId,
+      });
+      const res = authMockResponse();
+      jest.spyOn(UserCache.prototype, 'getUserFromCache').mockResolvedValue(existingUser);
+      jest.spyOn(PostCache.prototype, 'getUserPostsFromCache').mockResolvedValue([postMockData]);
+
+      await getUserProfiles.profileAndPosts(req, res);
+      expect(UserCache.prototype.getUserFromCache).toHaveBeenCalledWith(`${req.currentUser?.userId}`);
+      expect(PostCache.prototype.getUserPostsFromCache).toHaveBeenCalledWith(
+        'post',
+        parseInt(req.params.uId, 10)
+      );
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Get user profile and posts',
+        user: existingUser,
+        posts: [postMockData],
+      });
+    });
+
+    it('should send success json response if user in database', async () => {
+      const req = authMockRequest({}, {}, authUserPayload, {
+        username: existingUser.username,
+        userId: existingUser._id,
+        uId: existingUser.uId,
+      });
+      const res = authMockResponse();
+      jest.spyOn(UserCache.prototype, 'getUserFromCache').mockResolvedValue(null);
+      jest.spyOn(PostCache.prototype, 'getUserPostsFromCache').mockResolvedValue([]);
+      jest.spyOn(userService, 'getUserById').mockResolvedValue(existingUser);
+      jest.spyOn(postService, 'getPosts').mockResolvedValue([postMockData]);
+
+      const userName: string = Helpers.firstLetterUpperCase(req.params.username);
+
+      await getUserProfiles.profileAndPosts(req, res);
+      expect(userService.getUserById).toHaveBeenCalledWith(existingUser._id);
+      expect(postService.getPosts).toHaveBeenCalledWith({ username: userName }, 0, 100, { createdAt: -1 });
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Get user profile and posts',
+        user: existingUser,
+        posts: [postMockData],
+      });
+    });
+  });
+
+  describe('profileByUserId', () => {
+    it('should send success json response if user in cache', async () => {
+      const req = authMockRequest({}, {}, authUserPayload, {
+        userId: existingUser._id,
+      });
+      const res = authMockResponse();
+      jest.spyOn(UserCache.prototype, 'getUserFromCache').mockResolvedValue(existingUser);
+
+      await getUserProfiles.profileByUserId(req, res);
+      expect(UserCache.prototype.getUserFromCache).toHaveBeenCalledWith(req.params.userId);
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Get user profile by id',
+        user: existingUser,
+      });
+    });
+
+    it('should send success json response if user in database', async () => {
+      const req = authMockRequest({}, {}, authUserPayload, {
+        userId: existingUser._id,
+      });
+      const res = authMockResponse();
+      jest.spyOn(UserCache.prototype, 'getUserFromCache').mockResolvedValue(null);
+      jest.spyOn(userService, 'getUserById').mockResolvedValue(existingUser);
+
+      await getUserProfiles.profileByUserId(req, res);
+      expect(userService.getUserById).toHaveBeenCalledWith(req.params.userId);
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Get user profile by id',
+        user: existingUser,
+      });
+    });
+  });
+
+  describe('randomUserSuggestions', () => {
+    it('should send success json response if user in cache', async () => {
+      const req = authMockRequest({}, {}, authUserPayload);
+      const res = authMockResponse();
+      jest.spyOn(UserCache.prototype, 'getRandomUsersFromCache').mockResolvedValue([existingUser]);
+
+      await getUserProfiles.randomUserSuggestions(req, res);
+      expect(UserCache.prototype.getRandomUsersFromCache).toHaveBeenCalledWith(
+        `${req.currentUser?.userId}`,
+        `${req.currentUser?.username}`
+      );
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'User suggestions',
+        users: [existingUser],
+      });
+    });
+
+    it('should send success json response if user in database', async () => {
+      const req = authMockRequest({}, {}, authUserPayload);
+      const res = authMockResponse();
+      jest.spyOn(UserCache.prototype, 'getRandomUsersFromCache').mockResolvedValue([]);
+      jest.spyOn(userService, 'getRandomUsers').mockResolvedValue([existingUser]);
+
+      await getUserProfiles.randomUserSuggestions(req, res);
+      expect(userService.getRandomUsers).toHaveBeenCalledWith(req.currentUser!.userId);
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'User suggestions',
+        users: [existingUser],
+      });
+    });
+  });
+});
