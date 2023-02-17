@@ -37,8 +37,8 @@ fi
 
 cd /home/ec2-user
 
-git clone -b develop https://github.com/uzochukwueddie/chatty-backend.git # replace this github url with your url of your own project
-cd chatty-backend # set your project name
+git clone -b dev https://github.com/mamed-gasimov/media-app-backend.git
+cd media-app-backend
 npm install
 aws s3 sync s3://mediapp-env-files/backend/develop .
 unzip env-file.zip
