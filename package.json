@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "nodemon -r tsconfig-paths/register src/app.ts | ./node_modules/.bin/bunyan",
-    "start": "NODE_ENV=production pm2 start ./build/src/app.js -i 5 --attach --watch | ./node_modules/.bin/bunyan",
+    "start": "NODE_ENV=production pm2 start ./build/src/app.js -i 5 --attach | ./node_modules/.bin/bunyan",
     "stop": "pm2 stop all",
     "delete": "pm2 delete all",
     "lint:check": "eslint 'src/**/*.ts'",
