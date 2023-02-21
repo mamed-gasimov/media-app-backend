@@ -7,6 +7,7 @@ const log = config.createLogger('setupDatabase');
 
 const databaseConnection = () => {
   const connect = () => {
+    mongoose.set('strictQuery', false);
     mongoose
       .connect(`${config.DB_URL}`)
       .then(() => {
