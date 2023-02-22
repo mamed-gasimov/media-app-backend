@@ -22,7 +22,7 @@ import { SocketIONotificationHandler } from '@socket/notification.sockets';
 import { SocketIOImageHandler } from '@socket/image.sockets';
 import { SocketIOChatHandler } from '@socket/chat.sockets';
 
-const SERVER_PORT = process.env.PORT ? `0.0.0.0:${process.env.PORT}` : 8000;
+const SERVER_PORT = process.env.PORT || 8000;
 const log = config.createLogger('server');
 
 export class AppServer {
