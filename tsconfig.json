@@ -19,7 +19,6 @@
     "allowSyntheticDefaultImports": true,
     "pretty": true,
     "resolveJsonModule": true,
-    "skipLibCheck": true,
     "plugins": [
       { "transform": "typescript-transform-paths" },
       {

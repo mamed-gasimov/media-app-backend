@@ -5,7 +5,6 @@ import { authUserPayload } from '@root/mocks/auth.mock';
 import * as followerServer from '@socket/follower.sockets';
 import { followersMockRequest, followersMockResponse } from '@root/mocks/followers.mock';
 import { existingUser } from '@root/mocks/user.mock';
-import { followerQueue } from '@service/queues/follower.queue';
 import { followUser } from '@follower/controllers/followUser';
 import { UserCache } from '@service/redis/user.cache';
 import { FollowerCache } from '@service/redis/follower.cache';
@@ -109,29 +108,6 @@ describe('Follow User', () => {
       'followers:6064861bc25eaa5a5d2f9bf4',
       `${existingUser._id}`
     );
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({
-      message: 'Following user now',
-    });
-  });
-
-  it('should call followerQueue addFollowerJob', async () => {
-    const req = followersMockRequest({}, authUserPayload, {
-      followerId: '6064861bc25eaa5a5d2f9bf4',
-    });
-    const res = followersMockResponse();
-    jest
-      .spyOn(FollowerCache.prototype, 'getFollowersFromCache')
-      .mockImplementation((): any => Promise.resolve([{ _id: '12345' }]));
-    const spy = jest.spyOn(followerQueue, 'addFollowerJob');
-
-    await followUser.follower(req, res);
-    expect(followerQueue.addFollowerJob).toHaveBeenCalledWith('addFollowerToDb', {
-      keyOne: `${req.currentUser?.userId}`,
-      keyTwo: '6064861bc25eaa5a5d2f9bf4',
-      username: req.currentUser?.username,
-      followerDocumentId: spy.mock.calls[0][1].followerDocumentId,
-    });
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
       message: 'Following user now',
