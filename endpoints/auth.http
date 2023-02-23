@@ -21,10 +21,7 @@ Content-Type: application/json
 Accept: application/json
 withCredentials: true
 
-{
-  "username": "",
-  "password": ""
-}
+{ "username": "", "password": "" }
 
 ###
 GET {{baseUrl}}/{{urlPath}}/signout
