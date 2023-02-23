@@ -94,7 +94,7 @@ describe('Get Post Comments', () => {
         postId: '',
       });
       const res = reactionMockResponse();
-      getComments.comments(req, res).catch((error: CustomError) => {
+      getComments.commentNames(req, res).catch((error: CustomError) => {
         expect(error.statusCode).toEqual(400);
         expect(error.serializeErrors().message).toEqual('Invalid request.');
       });
@@ -105,7 +105,7 @@ describe('Get Post Comments', () => {
         postId: '12345',
       });
       const res = reactionMockResponse();
-      getComments.comments(req, res).catch((error: CustomError) => {
+      getComments.commentNames(req, res).catch((error: CustomError) => {
         expect(error.statusCode).toEqual(400);
         expect(error.serializeErrors().message).toEqual('Invalid request.');
       });
@@ -173,7 +173,7 @@ describe('Get Post Comments', () => {
         commentId: '6064861bc25eaa5a5d2f9bf4',
       });
       const res = reactionMockResponse();
-      getComments.comments(req, res).catch((error: CustomError) => {
+      getComments.singleComment(req, res).catch((error: CustomError) => {
         expect(error.statusCode).toEqual(400);
         expect(error.serializeErrors().message).toEqual('Invalid request.');
       });
@@ -185,7 +185,7 @@ describe('Get Post Comments', () => {
         commentId: '6064861bc25eaa5a5d2f9bf4',
       });
       const res = reactionMockResponse();
-      getComments.comments(req, res).catch((error: CustomError) => {
+      getComments.singleComment(req, res).catch((error: CustomError) => {
         expect(error.statusCode).toEqual(400);
         expect(error.serializeErrors().message).toEqual('Invalid request.');
       });
@@ -197,7 +197,7 @@ describe('Get Post Comments', () => {
         commentId: '',
       });
       const res = reactionMockResponse();
-      getComments.comments(req, res).catch((error: CustomError) => {
+      getComments.singleComment(req, res).catch((error: CustomError) => {
         expect(error.statusCode).toEqual(400);
         expect(error.serializeErrors().message).toEqual('Invalid request.');
       });
@@ -209,7 +209,7 @@ describe('Get Post Comments', () => {
         commentId: '12345',
       });
       const res = reactionMockResponse();
-      getComments.comments(req, res).catch((error: CustomError) => {
+      getComments.singleComment(req, res).catch((error: CustomError) => {
         expect(error.statusCode).toEqual(400);
         expect(error.serializeErrors().message).toEqual('Invalid request.');
       });
