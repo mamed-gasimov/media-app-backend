@@ -1,12 +1,16 @@
 {
-  "installCommand": "yarn",
-  "buildCommand": "yarn run build",
-  "devCommand": "yarn run dev",
-  "outputDirectory": "build",
+  "version": 2,
+  "builds": [
+    {
+      "src": "build/src/app.js",
+      "use": "@vercel/node",
+      "config": { "includeFiles": ["build/**"] }
+    }
+  ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/"
+      "dest": "build/src/app.js"
     }
   ]
 }
