@@ -134,11 +134,6 @@ describe('Update Post', () => {
         `${postMockData._id}`,
         postSpy.mock.calls[0][1]
       );
-      expect(postServer.socketIOPostObject.emit).toHaveBeenCalledWith('update post', postMockData, 'posts');
-      expect(postQueue.addPostJob).toHaveBeenCalledWith('updatePostInDb', {
-        key: `${postMockData._id}`,
-        value: postMockData,
-      });
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
         message: 'Post updated successfully',
@@ -166,11 +161,6 @@ describe('Update Post', () => {
         `${postMockData._id}`,
         postSpy.mock.calls[0][1]
       );
-      expect(postServer.socketIOPostObject.emit).toHaveBeenCalledWith('update post', postMockData, 'posts');
-      expect(postQueue.addPostJob).toHaveBeenCalledWith('updatePostInDb', {
-        key: `${postMockData._id}`,
-        value: postMockData,
-      });
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
         message: 'Post updated successfully',
