@@ -44,7 +44,10 @@ class AddChatMessage {
     let fileUrl = '';
     const messageObjectId = new ObjectId();
     const conversationObjectId = !conversationId ? new ObjectId() : new ObjectId(conversationId);
-    const sender = (await userCache.getUserFromCache(`${req.currentUser!.userId}`)) as IUserDocument;
+    let sender = (await userCache.getUserFromCache(`${req.currentUser!.userId}`)) as IUserDocument;
+    if (!sender) {
+      sender = (await userService.getUserById(req.currentUser!.userId)) as IUserDocument;
+    }
 
     if (selectedImage) {
       if (Helpers.isDataBase64(selectedImage)) {
@@ -157,8 +160,10 @@ class AddChatMessage {
     receiverName,
     receiverId,
   }: IMessageNotification) {
-    const cachedUser = (await userCache.getUserFromCache(`${receiverId}`)) as IUserDocument;
-    if (cachedUser.notifications.messages) {
+    const cachedUser =
+      ((await userCache.getUserFromCache(`${receiverId}`)) as IUserDocument) ||
+      ((await userService.getUserById(receiverId)) as IUserDocument);
+    if (cachedUser?.notifications?.messages) {
       const templateParams: INotificationTemplate = {
         username: receiverName,
         message,

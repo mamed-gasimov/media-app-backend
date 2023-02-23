@@ -12,7 +12,8 @@
     "lint:fix": "eslint 'src/**/*.ts' --fix",
     "prettier:check": "prettier --check 'src/**/*.{ts, json}'",
     "prettier:fix": "prettier --write 'src/**/*.{ts, json}'",
-    "test": "jest --coverage=true -w=1 --forceExit --detectOpenHandles --watchAll=false",
+    "test-clear-cache": "jest --clearCache",
+    "test": "jest --coverage=true -w=2 --forceExit --watchAll=false",
     "build": "yarn && ttsc -p ."
   },
   "dependencies": {
